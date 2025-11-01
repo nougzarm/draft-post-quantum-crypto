@@ -139,11 +139,7 @@ class Polynomial:
             # --- Gère la variable X et la puissance ---
             if i > 0: # Terme non constant
                 if c != 1:
-                     # Ajoute '*' pour la clarté si le coeff n'est pas 1
-                     # (Optionnel, mais "5X^2" est plus ambigu que "5*X^2")
-                     # Pour rester sur votre demande, nous allons l'omettre.
-                     # ex: "5X^2"
-                     pass
+                    term_str += "*"
                      
                 term_str += "X" # Ajoute 'X'
                 if i > 1:
