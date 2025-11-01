@@ -66,9 +66,6 @@ class Polynomial:
         Multiplication polynomiale standard (Convolution) : a(x) * b(x).
         Complexité O(n^2).
         
-        C'est lent et n'est PAS utilisé pour les opérations principales de Kyber,
-        mais c'est mathématiquement correct.
-        
         Prend en compte la réduction X^n = -1.
         """
         if not isinstance(other, Polynomial):
@@ -118,10 +115,48 @@ class Polynomial:
     # --- Méthodes utilitaires pour un usage facile ---
 
     def __repr__(self):
-        """Représentation textuelle pour le débogage."""
-        # Affiche les 3 premiers et le dernier coefficient pour la lisibilité
-        coeffs_preview = ', '.join(map(str, self.coeffs[:3]))
-        return f"Polynomial(coeffs=[{coeffs_preview}, ..., {self.coeffs[-1]}], n={self.n}, q={self.q})"
+        """
+        Affiche le polynôme sous une forme mathématique lisible.
+        ex: 8X^2 + 10X + 3
+        """
+        terms = []
+        # Itère des hauts degrés (n-1) vers les bas degrés (0)
+        for i in range(self.n - 1, -1, -1):
+            c = self.coeffs[i]
+            
+            # Ignore les termes nuls
+            if c == 0:
+                continue
+            
+            # Construit la chaîne pour ce terme
+            term_str = ""
+            
+            # --- Gère le coefficient ---
+            if c != 1 or i == 0:
+                # N'affiche pas '1' si ce n'est pas le terme constant
+                term_str += str(c)
+                
+            # --- Gère la variable X et la puissance ---
+            if i > 0: # Terme non constant
+                if c != 1:
+                     # Ajoute '*' pour la clarté si le coeff n'est pas 1
+                     # (Optionnel, mais "5X^2" est plus ambigu que "5*X^2")
+                     # Pour rester sur votre demande, nous allons l'omettre.
+                     # ex: "5X^2"
+                     pass
+                     
+                term_str += "X" # Ajoute 'X'
+                if i > 1:
+                    term_str += f"^{i}" # Ajoute la puissance
+            
+            terms.append(term_str)
+        
+        # Si tous les termes étaient nuls
+        if not terms:
+            return "0"
+            
+        # Joint tous les termes avec " + "
+        return " + ".join(terms)
 
     def __getitem__(self, index):
         """Permet d'accéder à un coefficient (ex: poly[i])."""
@@ -137,23 +172,23 @@ class Polynomial:
 
 # --- Exemple d'utilisation ---
 if __name__ == '__main__':
-    # Crée un polynôme 'a' avec des 1 partout
-    coeffs_a = [1] * KYBER_N
+    # Crée un polynôme 'a'
+    coeffs_a = [1, 0, 2, 3] + [0] * (KYBER_N - 4)
     a = Polynomial(coeffs_a)
 
-    # Crée un polynôme 'b' avec des 2 partout
-    coeffs_b = [2] * KYBER_N
+    # Crée un polynôme 'b'
+    coeffs_b = [1, 0, 2, 3, 7, 9] + [0] * (KYBER_N - 6)
     b = Polynomial(coeffs_b)
 
     # Addition
     c = a + b
-    print(f"Addition (a + b): {c}") # Devrait avoir des 3
-    print(f"Coefficient c[0]: {c[0]}") # Devrait être 3
+    print(f"Addition (a + b): {c}") 
+    print(f"Coefficient c[0]: {c[0]}") 
 
     # Soustraction
     d = a - b
-    print(f"Soustraction (a - b): {d}") # Devrait avoir des -1 (mod 3329)
-    print(f"Coefficient d[0]: {d[0]}") # Devrait être 3328
+    print(f"Soustraction (a - b): {d}")
+    print(f"Coefficient d[0]: {d[0]}")
 
     # Création d'un polynôme nul
     z = Polynomial()
