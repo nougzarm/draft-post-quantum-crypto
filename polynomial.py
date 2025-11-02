@@ -18,12 +18,11 @@ class Polynomial:
         self.q = KYBER_Q
         
         if coeffs is None:
-            # Initialise un polynôme avec 256 coefficients nuls
+            # Polynome nul
             self.coeffs = [0] * self.n
         else:
             if len(coeffs) != self.n:
                 raise ValueError(f"Le polynôme doit avoir exactement {self.n} coefficients, mais en a reçu {len(coeffs)}")
-            # S'assure que tous les coefficients sont bien dans Z_q
             self.coeffs = [int(c) % self.q for c in coeffs]
 
     def __add__(self, other):
@@ -32,12 +31,10 @@ class Polynomial:
         L'addition est effectuée coefficient par coefficient, modulo q.
         """
         if not isinstance(other, Polynomial):
-            # Gère le cas où on essaie d'ajouter autre chose qu'un polynôme
             return NotImplemented
             
         new_coeffs = []
         for i in range(self.n):
-            # Calcule (a_i + b_i) mod q
             new_coeff = (self.coeffs[i] + other.coeffs[i]) % self.q
             new_coeffs.append(new_coeff)
             
@@ -53,7 +50,6 @@ class Polynomial:
             
         new_coeffs = []
         for i in range(self.n):
-            # Calcule (a_i - b_i) mod q
             new_coeff = (self.coeffs[i] - other.coeffs[i]) % self.q
             new_coeffs.append(new_coeff)
             
@@ -118,20 +114,15 @@ class Polynomial:
         ex: 8X^2 + 10X + 3
         """
         terms = []
-        # Itère des hauts degrés (n-1) vers les bas degrés (0)
         for i in range(self.n - 1, -1, -1):
             c = self.coeffs[i]
             
-            # Ignore les termes nuls
             if c == 0:
                 continue
             
-            # Construit la chaîne pour ce terme
             term_str = ""
             
-            # --- Gère le coefficient ---
             if c != 1 or i == 0:
-                # N'affiche pas '1' si ce n'est pas le terme constant
                 term_str += str(c)
                 
             # --- Gère la variable X et la puissance ---
@@ -145,11 +136,9 @@ class Polynomial:
             
             terms.append(term_str)
         
-        # Si tous les termes étaient nuls
         if not terms:
             return "0"
             
-        # Joint tous les termes avec " + "
         return " + ".join(terms)
 
     def __getitem__(self, index):
