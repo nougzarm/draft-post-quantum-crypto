@@ -6,8 +6,6 @@ class Polynomial:
     """
     Représente un polynôme dans l'anneau R_q = Z_q[X] / (X^n + 1)
     pour les paramètres Kyber (n=256, q=3329).
-    
-    Les coefficients sont stockés sous forme de liste Python standard.
     """
     
     def __init__(self, coeffs=None):
