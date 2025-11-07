@@ -4,6 +4,10 @@ class XOF:
     def __init__(self):
         self._shake = SHAKE128.new()
 
+    @classmethod
+    def new(cls):
+        return cls()
+
     def Absorb(self, data: bytes):
         self._shake.update(data)
 
@@ -11,7 +15,7 @@ class XOF:
         return self._shake.read(length)
 
 if __name__ == '__main__':
-    func = XOF()
+    func = XOF.new()
     func.Absorb(b"Ceci est un test pour XOF")
 
     bytes = func.Squeeze(32)
