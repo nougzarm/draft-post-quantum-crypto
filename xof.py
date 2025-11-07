@@ -9,3 +9,10 @@ class XOF:
 
     def Squeeze(self, length: int) -> bytes:
         return self._shake.read(length)
+
+if __name__ == '__main__':
+    func = XOF()
+    func.Absorb(b"Ceci est un test pour XOF")
+
+    bytes = func.Squeeze(32)
+    print(f"32 premiers octets  : {bytes.hex()}")
