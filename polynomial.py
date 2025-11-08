@@ -77,23 +77,6 @@ class Polynomial:
                     
         return Polynomial(new_coeffs)
 
-    def pointwise_multiply(self, other):
-        """
-        Multiplication "pointwise" (Hadamard) : c[i] = a[i] * b[i].
-        Complexité O(n).
-        
-        C'est l'opération utilisée DANS LE DOMAINE NTT.
-        """
-        if not isinstance(other, Polynomial):
-            raise TypeError("Ne peut multiplier qu'avec un autre Polynomial")
-            
-        new_coeffs = []
-        for i in range(N):
-            new_coeff = (self.coeffs[i] * other.coeffs[i]) % Q
-            new_coeffs.append(new_coeff)
-            
-        return Polynomial(new_coeffs)
-
     # --- Méthodes utilitaires pour un usage facile ---
 
     def __repr__(self):
@@ -275,14 +258,5 @@ if __name__ == '__main__':
     p1 = Polynomial([1, 2] + [0]*254) # p1 = 1 + 2X
     p2 = Polynomial([3, 4] + [0]*254) # p2 = 3 + 4X
 
-    # 1. Multiplication Pointwise (facile)
-    p_pointwise = p1.pointwise_multiply(p2)
-    # Attendu: [1*3, 2*4, 0*0, ...] = [3, 8, 0, ...]
-    print(f"Pointwise: {p_pointwise}")
-
-    # 2. Multiplication Standard (compliquée)
-    # (1 + 2X) * (3 + 4X) = 1*3 + 1*4X + 2X*3 + 2X*4X
-    # = 3 + 4X + 6X + 8X^2
-    # = 3 + 10X + 8X^2
     p_standard = p1 * p2 
     print(f"Standard : {p_standard}") # Attendu: [3, 10, 8, 0, ...]
