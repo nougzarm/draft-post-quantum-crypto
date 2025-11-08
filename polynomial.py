@@ -1,6 +1,7 @@
 from constants import N, Q, ZETAS
 from xof import XOF
 from conversion import *
+from utils import MultiplyNTTs
 
 class Polynomial:
     """
@@ -140,7 +141,7 @@ class Polynomial:
         """Permet d'utiliser len(poly)."""
         return N
     
-class PolynomialNNT:
+class PolynomialNTT:
     """
     Représente un polynôme dans l'anneau T_q = [...]
     pour les paramètres Kyber (N=256, Q=3329).
@@ -154,10 +155,17 @@ class PolynomialNNT:
                 raise ValueError(f"Le polynôme doit avoir exactement {N} coefficients, mais en a reçu {len(coeffs)}")
             self.coeffs = [int(c) % Q for c in coeffs]
 
+    def __mul__(self, other):
+        if not isinstance(other, PolynomialNTT):
+            return NotImplemented
+        
+        product_list = MultiplyNTTs(self.coeffs, other.coeffs)
+        return PolynomialNTT(product_list)
+
 """ 
 Correspond à l'algorithme 7 de la spec 
 """
-def SampleNNT(B: bytes) -> PolynomialNNT:
+def SampleNTT(B: bytes) -> PolynomialNTT:
     if len(B) != 34:
         raise ValueError(f"Mauvaise taille pour B")
     
@@ -175,7 +183,7 @@ def SampleNNT(B: bytes) -> PolynomialNNT:
         if d2 < Q and j < 256:
             a[j] = d2
             j += 1
-    return PolynomialNNT(a)
+    return PolynomialNTT(a)
 
 """ 
 Correspond à l'algorithme 8 de la spec 
@@ -199,7 +207,7 @@ def SamplePolyCBD(B: bytes, eta=3) -> Polynomial:
 """ 
 Correspond à l'algorithme 9 de la spec 
 """
-def NNT(f: Polynomial) -> PolynomialNNT:
+def NTT(f: Polynomial) -> PolynomialNTT:
     C = f.coeffs.copy()
     i = 1
     len = 128
@@ -212,10 +220,13 @@ def NNT(f: Polynomial) -> PolynomialNNT:
                 C[j + len] = (C[j] - t) % Q
                 C[j] = (C[j] + t) % Q
         len = len // 2
-    return PolynomialNNT(C)
+    return PolynomialNTT(C)
 
-def inverse_NNT(f_nnt: PolynomialNNT) -> Polynomial:
-    C = f_nnt.coeffs.copy()
+""" 
+Correspond à l'algorithme 10 de la spec 
+"""
+def inverse_NTT(f_ntt: PolynomialNTT) -> Polynomial:
+    C = f_ntt.coeffs.copy()
     i = 127
     len = 2 
     while len <= 128:
@@ -238,9 +249,9 @@ if __name__ == '__main__':
     # Crée un polynôme 'a'
     coeffs_a = [1, 0, 2, 3] + [0] * (N - 4)
     a = Polynomial(coeffs_a)
-    # assert inverse_NNT(NNT(a)) == a
+    # assert inverse_NTT(NTT(a)) == a
     print(a)
-    print(inverse_NNT(NNT(a)))
+    print(inverse_NTT(NTT(a)))
 
     # Crée un polynôme 'b'
     coeffs_b = [1, 0, 2, 3, 7, 9] + [0] * (N - 6)
