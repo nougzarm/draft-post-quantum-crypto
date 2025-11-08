@@ -9,16 +9,10 @@ class Polynomial:
     """
     
     def __init__(self, coeffs=None):
-        """
-        Initialise le polynôme.
-        Si 'coeffs' est None, initialise un polynôme nul.
-        Sinon, utilise la liste de coefficients fournie.
-        """
         self.n = N
         self.q = Q
         
         if coeffs is None:
-            # Polynome nul
             self.coeffs = [0] * self.n
         else:
             if len(coeffs) != self.n:
@@ -26,10 +20,6 @@ class Polynomial:
             self.coeffs = [int(c) % self.q for c in coeffs]
 
     def __add__(self, other):
-        """
-        Surcharge l'opérateur d'addition (self + other).
-        L'addition est effectuée coefficient par coefficient, modulo q.
-        """
         if not isinstance(other, Polynomial):
             return NotImplemented
             
@@ -248,24 +238,25 @@ def inverse_NNT(f_nnt: PolynomialNNT) -> Polynomial:
     for i in range(256):
         C[i] = (C[i] * 3303) % Q
 
-    return PolynomialNNT(C)
+    return Polynomial(C)
 
 # --- Exemple d'utilisation ---
 if __name__ == '__main__':
     # Crée un polynôme 'a'
     coeffs_a = [1, 0, 2, 3] + [0] * (N - 4)
     a = Polynomial(coeffs_a)
-    # assert inverse_NNT(NNT(a)).coeffs == a.coeffs
-    print(a.coeffs)
-    print(inverse_NNT(NNT(a)).coeffs)
+    # assert inverse_NNT(NNT(a)) == a
+    print(a)
+    print(inverse_NNT(NNT(a)))
 
     # Crée un polynôme 'b'
     coeffs_b = [1, 0, 2, 3, 7, 9] + [0] * (N - 6)
     b = Polynomial(coeffs_b)
+    print(b)
 
     # Addition
     c = a + b
-    print(f"Addition (a + b): {c}") 
+    print(c) 
     print(f"Coefficient c[0]: {c[0]}") 
 
     # Soustraction
