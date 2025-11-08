@@ -5,9 +5,9 @@ def BitToBytes(b) -> bytes:
         raise ValueError(f"Le tableau de bits n'a pas une longueur multiple de 8")
     
     l = len(b)
-    B = [0] * ( l//8 )
+    B = [0] * (l // 8)
     for i in range(l):
-        B[i//8] += b[i]*(2**(i%8))
+        B[i//8] += b[i] * (2**(i % 8))
     return bytes(B)
 
 def BytesToBits(B: bytes):
@@ -25,7 +25,7 @@ def ByteEncode(F, d=CONST_d) -> bytes:
         a = F[i]
         for j in range(d):
             b[i*d + j] = a % 2
-            a = (a - b[i*d +j]) // 2
+            a = (a - b[i*d + j]) // 2
     B = BitToBytes(b)
     return B
 
