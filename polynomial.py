@@ -1,5 +1,6 @@
-from constants import CONST_N, CONST_Q
+from constants import N, Q
 from xof import XOF
+from conversion import *
 
 class Polynomial:
     """
@@ -13,8 +14,8 @@ class Polynomial:
         Si 'coeffs' est None, initialise un polynôme nul.
         Sinon, utilise la liste de coefficients fournie.
         """
-        self.n = CONST_N
-        self.q = CONST_Q
+        self.n = N
+        self.q = Q
         
         if coeffs is None:
             # Polynome nul
@@ -159,8 +160,8 @@ class PolynomialNNT:
     """
     
     def __init__(self, coeffs=None):
-        self.n = CONST_N
-        self.q = CONST_Q
+        self.n = N
+        self.q = Q
         
         if coeffs is None:
             # Polynome nul
@@ -185,24 +186,43 @@ def SampleNNT(B: bytes) -> PolynomialNNT:
         C = ctx.Squeeze(3)
         d1 = C[0] + 256*(C[1] % 16)
         d2 = (C[1] // 16) + 16*C[2]
-        if d1 < CONST_Q:
+        if d1 < Q:
             a[j] = d1
             j += 1
-        if d2 < CONST_Q and j < 256:
+        if d2 < Q and j < 256:
             a[j] = d2
             j += 1
     return PolynomialNNT(a)
-            
+
+""" 
+Correspond à l'algorithme 8 de la spec 
+"""
+def SamplePolyCBD(B: bytes, eta=3) -> Polynomial:
+    if len(B) != 64*eta:
+        raise ValueError(f"Mauvaise taille pour B")
+    
+    b = BytesToBits(B)
+    f = [0] * 256
+    for i in range(256):
+        x = 0
+        for j in range(eta):
+            x += b[2*i*eta + j]
+        y = 0
+        for j in range(eta):
+            y += b[2*i*eta + eta + j]
+        f[i] = (x - y) % Q
+    return Polynomial(f)
+
 
 
 # --- Exemple d'utilisation ---
 if __name__ == '__main__':
     # Crée un polynôme 'a'
-    coeffs_a = [1, 0, 2, 3] + [0] * (CONST_N - 4)
+    coeffs_a = [1, 0, 2, 3] + [0] * (N - 4)
     a = Polynomial(coeffs_a)
 
     # Crée un polynôme 'b'
-    coeffs_b = [1, 0, 2, 3, 7, 9] + [0] * (CONST_N - 6)
+    coeffs_b = [1, 0, 2, 3, 7, 9] + [0] * (N - 6)
     b = Polynomial(coeffs_b)
 
     # Addition
