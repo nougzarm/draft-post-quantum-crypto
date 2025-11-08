@@ -5,8 +5,7 @@ from utils import MultiplyNTTs
 
 class Polynomial:
     """
-    Représente un polynôme dans l'anneau R_q = Z_q[X] / (X^n + 1)
-    pour les paramètres Kyber (n=256, q=3329).
+    Représente un polynôme dans l'anneau R_Q = Z_Q[X] / (X^N + 1)
     """
     
     def __init__(self, coeffs=None):
@@ -29,10 +28,6 @@ class Polynomial:
         return Polynomial(new_coeffs)
 
     def __sub__(self, other):
-        """
-        Surcharge l'opérateur de soustraction (self - other).
-        La soustraction est effectuée coefficient par coefficient, modulo q.
-        """
         if not isinstance(other, Polynomial):
             return NotImplemented
             
@@ -44,12 +39,6 @@ class Polynomial:
         return Polynomial(new_coeffs)
     
     def __mul__(self, other):
-        """
-        Multiplication polynomiale standard (Convolution) : a(x) * b(x).
-        Complexité O(n^2).
-        
-        Prend en compte la réduction X^n = -1.
-        """
         if not isinstance(other, Polynomial):
             return NotImplemented
             
@@ -57,22 +46,13 @@ class Polynomial:
         
         for i in range(N):
             for j in range(N):
-                # Calcule le produit de a[i] * b[j]
                 product = (self.coeffs[i] * other.coeffs[j])
                 
-                # Calcule le nouvel index k = i + j
                 k = i + j
-                
                 if k < N:
-                    # Si k < n, on ajoute simplement à c[k]
-                    # c[k] = (c[k] + a[i]*b[j]) % q
                     new_coeffs[k] = (new_coeffs[k] + product) % Q
                 else:
-                    # Si k >= n, on utilise X^n = -1.
-                    # X^k = X^(n + (k-n)) = X^n * X^(k-n) = -1 * X^(k-n)
-                    # On doit donc *soustraire* le produit de c[k-n]
                     k_prime = k - N
-                    # c[k_prime] = (c[k_prime] - a[i]*b[j]) % q
                     new_coeffs[k_prime] = (new_coeffs[k_prime] - product) % Q
                     
         return Polynomial(new_coeffs)
@@ -80,7 +60,7 @@ class Polynomial:
     def __eq__(self, other):
         """
         Surcharge l'opérateur ==.
-        Deux polynômes sont égaux si tous leurs coefficients sont identiques.
+        La vérification se fait en TEMPS CONSTANT
         """
         if not isinstance(other, Polynomial):
             return NotImplemented
@@ -135,12 +115,10 @@ class Polynomial:
     
 class PolynomialNTT:
     """
-    Représente un polynôme dans l'anneau T_q = [...]
-    pour les paramètres Kyber (N=256, Q=3329).
+    Représente un polynôme dans l'anneau T_Q : somme direct des Z_Q[X] / (X^2 - ZETA**(2*BitRev(i) + 1))
     """
     def __init__(self, coeffs=None):
         if coeffs is None:
-            # Polynome nul
             self.coeffs = [0] * N
         else:
             if len(coeffs) != N:
@@ -236,14 +214,13 @@ def inverse_NTT(f_ntt: PolynomialNTT) -> Polynomial:
 
     return Polynomial(C)
 
-# --- Exemple d'utilisation ---
+# --- Exemple d'utilisation et tests ---
 if __name__ == '__main__':
     # Crée un polynôme 'a'
     coeffs_a = [1, 0, 2, 3] + [0] * (N - 4)
     a = Polynomial(coeffs_a)
     assert inverse_NTT(NTT(a)) == a
     print(a)
-    print(inverse_NTT(NTT(a)))
 
     # Crée un polynôme 'b'
     coeffs_b = [1, 0, 2, 3, 7, 9] + [0] * (N - 6)
@@ -263,4 +240,4 @@ if __name__ == '__main__':
     p1 = Polynomial([1, 2, 4, 4, 3, 1, 6, 6, 4, 3] + [0]*246)
     p2 = Polynomial([3, 4, 8, 10, 27, 273, 12, 982, 12, 42, 9] + [0]*245)
     assert inverse_NTT(NTT(p1) * NTT(p2)) == p1 * p2
-    print(f"Produit p1 * p2 = {p1 * p2}") # Affiche le produit
+    # print(f"Produit p1 * p2 = {p1 * p2}") # Affiche le produit
