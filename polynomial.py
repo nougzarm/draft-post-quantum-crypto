@@ -1,4 +1,5 @@
 from constants import CONST_N, CONST_Q
+from xof import XOF
 
 class Polynomial:
     """
@@ -168,6 +169,31 @@ class PolynomialNNT:
             if len(coeffs) != self.n:
                 raise ValueError(f"Le polynôme doit avoir exactement {self.n} coefficients, mais en a reçu {len(coeffs)}")
             self.coeffs = [int(c) % self.q for c in coeffs]
+
+""" 
+Correspond à l'algorithme 7 de la spec 
+"""
+def SampleNNT(B: bytes) -> PolynomialNNT:
+    if len(B) != 34:
+        raise ValueError(f"Mauvaise taille pour B")
+    
+    a = [0] * 256
+    ctx = XOF.Init()
+    ctx.Absorb(B)
+    j = 0
+    while j < 256:
+        C = ctx.Squeeze(3)
+        d1 = C[0] + 256*(C[1] % 16)
+        d2 = (C[1] // 16) + 16*C[2]
+        if d1 < CONST_Q:
+            a[j] = d1
+            j += 1
+        if d2 < CONST_Q and j < 256:
+            a[j] = d2
+            j += 1
+    return PolynomialNNT(a)
+            
+
 
 # --- Exemple d'utilisation ---
 if __name__ == '__main__':
