@@ -76,9 +76,23 @@ class Polynomial:
                     new_coeffs[k_prime] = (new_coeffs[k_prime] - product) % Q
                     
         return Polynomial(new_coeffs)
+    
+    def __eq__(self, other):
+        """
+        Surcharge l'opérateur ==.
+        Deux polynômes sont égaux si tous leurs coefficients sont identiques.
+        """
+        if not isinstance(other, Polynomial):
+            return NotImplemented
+        
+        result = True
+        for i in range(N):
+            if self.coeffs[i] != other.coeffs[i]:
+                result = False
+
+        return result
 
     # --- Méthodes utilitaires pour un usage facile ---
-
     def __repr__(self):
         """
         Affiche le polynôme sous une forme mathématique lisible.
@@ -96,7 +110,6 @@ class Polynomial:
             if c != 1 or i == 0:
                 term_str += str(c)
                 
-            # --- Gère la variable X et la puissance ---
             if i > 0: # Terme non constant
                 if c != 1:
                     term_str += "*"
@@ -119,10 +132,6 @@ class Polynomial:
     def __setitem__(self, index, value):
         """Permet de définir un coefficient (ex: poly[i] = v)."""
         self.coeffs[index] = int(value) % Q
-
-    def __len__(self):
-        """Permet d'utiliser len(poly)."""
-        return N
     
 class PolynomialNTT:
     """
@@ -232,7 +241,7 @@ if __name__ == '__main__':
     # Crée un polynôme 'a'
     coeffs_a = [1, 0, 2, 3] + [0] * (N - 4)
     a = Polynomial(coeffs_a)
-    # assert inverse_NTT(NTT(a)) == a
+    assert inverse_NTT(NTT(a)) == a
     print(a)
     print(inverse_NTT(NTT(a)))
 
@@ -251,12 +260,11 @@ if __name__ == '__main__':
     print(f"Soustraction (a - b): {d}")
     print(f"Coefficient d[0]: {d[0]}")
 
-    # Création d'un polynôme nul
-    z = Polynomial()
-    print(f"Polynôme nul: {z}")
-
     p1 = Polynomial([1, 2] + [0]*254) # p1 = 1 + 2X
     p2 = Polynomial([3, 4] + [0]*254) # p2 = 3 + 4X
 
-    p_standard = p1 * p2 
+    p_standard = p1 * p2
+    p_ntt = NTT(p1) * NTT(p2)
+    p_rev = inverse_NTT(p_ntt)
     print(f"Standard : {p_standard}") # Attendu: [3, 10, 8, 0, ...]
+    print(f"Reversé : {p_rev}") # Attendu: [3, 10, 8, 0, ...]
