@@ -9,23 +9,20 @@ class Polynomial:
     """
     
     def __init__(self, coeffs=None):
-        self.n = N
-        self.q = Q
-        
         if coeffs is None:
-            self.coeffs = [0] * self.n
+            self.coeffs = [0] * N
         else:
-            if len(coeffs) != self.n:
-                raise ValueError(f"Le polynôme doit avoir exactement {self.n} coefficients, mais en a reçu {len(coeffs)}")
-            self.coeffs = [int(c) % self.q for c in coeffs]
+            if len(coeffs) != N:
+                raise ValueError(f"Le polynôme doit avoir exactement {N} coefficients, mais en a reçu {len(coeffs)}")
+            self.coeffs = [int(c) % Q for c in coeffs]
 
     def __add__(self, other):
         if not isinstance(other, Polynomial):
             return NotImplemented
             
         new_coeffs = []
-        for i in range(self.n):
-            new_coeff = (self.coeffs[i] + other.coeffs[i]) % self.q
+        for i in range(N):
+            new_coeff = (self.coeffs[i] + other.coeffs[i]) % Q
             new_coeffs.append(new_coeff)
             
         return Polynomial(new_coeffs)
@@ -39,8 +36,8 @@ class Polynomial:
             return NotImplemented
             
         new_coeffs = []
-        for i in range(self.n):
-            new_coeff = (self.coeffs[i] - other.coeffs[i]) % self.q
+        for i in range(N):
+            new_coeff = (self.coeffs[i] - other.coeffs[i]) % Q
             new_coeffs.append(new_coeff)
             
         return Polynomial(new_coeffs)
@@ -55,27 +52,27 @@ class Polynomial:
         if not isinstance(other, Polynomial):
             return NotImplemented
             
-        new_coeffs = [0] * self.n
+        new_coeffs = [0] * N
         
-        for i in range(self.n):
-            for j in range(self.n):
+        for i in range(N):
+            for j in range(N):
                 # Calcule le produit de a[i] * b[j]
                 product = (self.coeffs[i] * other.coeffs[j])
                 
                 # Calcule le nouvel index k = i + j
                 k = i + j
                 
-                if k < self.n:
+                if k < N:
                     # Si k < n, on ajoute simplement à c[k]
                     # c[k] = (c[k] + a[i]*b[j]) % q
-                    new_coeffs[k] = (new_coeffs[k] + product) % self.q
+                    new_coeffs[k] = (new_coeffs[k] + product) % Q
                 else:
                     # Si k >= n, on utilise X^n = -1.
                     # X^k = X^(n + (k-n)) = X^n * X^(k-n) = -1 * X^(k-n)
                     # On doit donc *soustraire* le produit de c[k-n]
-                    k_prime = k - self.n
+                    k_prime = k - N
                     # c[k_prime] = (c[k_prime] - a[i]*b[j]) % q
-                    new_coeffs[k_prime] = (new_coeffs[k_prime] - product) % self.q
+                    new_coeffs[k_prime] = (new_coeffs[k_prime] - product) % Q
                     
         return Polynomial(new_coeffs)
 
@@ -90,8 +87,8 @@ class Polynomial:
             raise TypeError("Ne peut multiplier qu'avec un autre Polynomial")
             
         new_coeffs = []
-        for i in range(self.n):
-            new_coeff = (self.coeffs[i] * other.coeffs[i]) % self.q
+        for i in range(N):
+            new_coeff = (self.coeffs[i] * other.coeffs[i]) % Q
             new_coeffs.append(new_coeff)
             
         return Polynomial(new_coeffs)
@@ -104,7 +101,7 @@ class Polynomial:
         ex: 8X^2 + 10X + 3
         """
         terms = []
-        for i in range(self.n - 1, -1, -1):
+        for i in range(N - 1, -1, -1):
             c = self.coeffs[i]
             
             if c == 0:
@@ -137,29 +134,25 @@ class Polynomial:
 
     def __setitem__(self, index, value):
         """Permet de définir un coefficient (ex: poly[i] = v)."""
-        self.coeffs[index] = int(value) % self.q
+        self.coeffs[index] = int(value) % Q
 
     def __len__(self):
         """Permet d'utiliser len(poly)."""
-        return self.n
+        return N
     
 class PolynomialNNT:
     """
     Représente un polynôme dans l'anneau T_q = [...]
-    pour les paramètres Kyber (n=256, q=3329).
+    pour les paramètres Kyber (N=256, Q=3329).
     """
-    
     def __init__(self, coeffs=None):
-        self.n = N
-        self.q = Q
-        
         if coeffs is None:
             # Polynome nul
-            self.coeffs = [0] * self.n
+            self.coeffs = [0] * N
         else:
-            if len(coeffs) != self.n:
-                raise ValueError(f"Le polynôme doit avoir exactement {self.n} coefficients, mais en a reçu {len(coeffs)}")
-            self.coeffs = [int(c) % self.q for c in coeffs]
+            if len(coeffs) != N:
+                raise ValueError(f"Le polynôme doit avoir exactement {N} coefficients, mais en a reçu {len(coeffs)}")
+            self.coeffs = [int(c) % Q for c in coeffs]
 
 """ 
 Correspond à l'algorithme 7 de la spec 
@@ -207,7 +200,7 @@ def SamplePolyCBD(B: bytes, eta=3) -> Polynomial:
 Correspond à l'algorithme 9 de la spec 
 """
 def NNT(f: Polynomial) -> PolynomialNNT:
-    C = f.coeffs
+    C = f.coeffs.copy()
     i = 1
     len = 128
     while len > 1:
@@ -222,7 +215,7 @@ def NNT(f: Polynomial) -> PolynomialNNT:
     return PolynomialNNT(C)
 
 def inverse_NNT(f_nnt: PolynomialNNT) -> Polynomial:
-    C = f_nnt.coeffs
+    C = f_nnt.coeffs.copy()
     i = 127
     len = 2 
     while len <= 128:
