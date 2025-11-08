@@ -1,4 +1,4 @@
-CONST_d = 12
+from constants import CONST_d
 
 def BitToBytes(b) -> bytes:
     if len(b) % 8 != 0:
