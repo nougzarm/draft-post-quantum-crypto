@@ -213,6 +213,9 @@ def SamplePolyCBD(B: bytes, eta=3) -> Polynomial:
         f[i] = (x - y) % Q
     return Polynomial(f)
 
+""" 
+Correspond à l'algorithme 9 de la spec 
+"""
 def NNT(f: Polynomial) -> PolynomialNNT:
     C = f.coeffs
     i = 1
@@ -228,6 +231,24 @@ def NNT(f: Polynomial) -> PolynomialNNT:
         len = len // 2
     return PolynomialNNT(C)
 
+def inverse_NNT(f_nnt: PolynomialNNT) -> Polynomial:
+    C = f_nnt.coeffs
+    i = 127
+    len = 2 
+    while len <= 128:
+        for start in range(0, 256, 2 * len):
+            zeta = ZETAS[i]
+            i -= 1
+            for j in range(start, start + len, 1):
+                t = C[j]
+                C[j] = t + C[j + len]
+                C[j + len] = zeta * (C[j + len] - t)
+        len = len * 2
+
+    for i in range(256):
+        C[i] = (C[i] * 3303) % Q
+
+    return PolynomialNNT(C)
 
 # --- Exemple d'utilisation ---
 if __name__ == '__main__':
