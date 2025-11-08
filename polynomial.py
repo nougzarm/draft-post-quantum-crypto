@@ -1,6 +1,4 @@
-# Constantes globales pour les paramètres de Kyber
-KYBER_N = 256
-KYBER_Q = 3329
+from constants import CONST_N, CONST_Q
 
 class Polynomial:
     """
@@ -14,8 +12,8 @@ class Polynomial:
         Si 'coeffs' est None, initialise un polynôme nul.
         Sinon, utilise la liste de coefficients fournie.
         """
-        self.n = KYBER_N
-        self.q = KYBER_Q
+        self.n = CONST_N
+        self.q = CONST_Q
         
         if coeffs is None:
             # Polynome nul
@@ -152,15 +150,33 @@ class Polynomial:
     def __len__(self):
         """Permet d'utiliser len(poly)."""
         return self.n
+    
+class PolynomialNNT:
+    """
+    Représente un polynôme dans l'anneau T_q = [...]
+    pour les paramètres Kyber (n=256, q=3329).
+    """
+    
+    def __init__(self, coeffs=None):
+        self.n = CONST_N
+        self.q = CONST_Q
+        
+        if coeffs is None:
+            # Polynome nul
+            self.coeffs = [0] * self.n
+        else:
+            if len(coeffs) != self.n:
+                raise ValueError(f"Le polynôme doit avoir exactement {self.n} coefficients, mais en a reçu {len(coeffs)}")
+            self.coeffs = [int(c) % self.q for c in coeffs]
 
 # --- Exemple d'utilisation ---
 if __name__ == '__main__':
     # Crée un polynôme 'a'
-    coeffs_a = [1, 0, 2, 3] + [0] * (KYBER_N - 4)
+    coeffs_a = [1, 0, 2, 3] + [0] * (CONST_N - 4)
     a = Polynomial(coeffs_a)
 
     # Crée un polynôme 'b'
-    coeffs_b = [1, 0, 2, 3, 7, 9] + [0] * (KYBER_N - 6)
+    coeffs_b = [1, 0, 2, 3, 7, 9] + [0] * (CONST_N - 6)
     b = Polynomial(coeffs_b)
 
     # Addition

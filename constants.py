@@ -1,1 +1,4 @@
+CONST_N = 256
+CONST_Q = 3329
+
 CONST_d = 12
