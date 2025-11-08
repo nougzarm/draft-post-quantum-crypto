@@ -221,13 +221,13 @@ def NNT(f: Polynomial) -> PolynomialNNT:
     i = 1
     len = 128
     while len > 1:
-        for start in range(0, 256, 2*len):
+        for start in range(0, 256, 2 * len):
             zeta = ZETAS[i]
             i += 1
             for j in range(start, start + len, 1):
-                t = zeta * C[j + len]
-                C[j + len] = C[j] - t
-                C[j] = C[j] + t
+                t = (zeta * C[j + len]) % Q
+                C[j + len] = (C[j] - t) % Q
+                C[j] = (C[j] + t) % Q
         len = len // 2
     return PolynomialNNT(C)
 
@@ -241,8 +241,8 @@ def inverse_NNT(f_nnt: PolynomialNNT) -> Polynomial:
             i -= 1
             for j in range(start, start + len, 1):
                 t = C[j]
-                C[j] = t + C[j + len]
-                C[j + len] = zeta * (C[j + len] - t)
+                C[j] = (t + C[j + len]) % Q
+                C[j + len] = (zeta * (C[j + len] - t)) % Q
         len = len * 2
 
     for i in range(256):
@@ -255,6 +255,9 @@ if __name__ == '__main__':
     # Crée un polynôme 'a'
     coeffs_a = [1, 0, 2, 3] + [0] * (N - 4)
     a = Polynomial(coeffs_a)
+    # assert inverse_NNT(NNT(a)).coeffs == a.coeffs
+    print(a.coeffs)
+    print(inverse_NNT(NNT(a)).coeffs)
 
     # Crée un polynôme 'b'
     coeffs_b = [1, 0, 2, 3, 7, 9] + [0] * (N - 6)
@@ -288,10 +291,3 @@ if __name__ == '__main__':
     # = 3 + 10X + 8X^2
     p_standard = p1 * p2 
     print(f"Standard : {p_standard}") # Attendu: [3, 10, 8, 0, ...]
-    
-    # Exemple avec réduction X^n = -1
-    # (supposons n=4 pour l'exemple)
-    # (X^2) * (X^3) = X^5 = X^(4+1) = X^4 * X^1 = -1 * X^1 = -X
-    # (Testez ceci en changeant KYBER_N=4 temporairement)
-
-    print(f"Standard : {NNT(p_standard).coeffs}") 

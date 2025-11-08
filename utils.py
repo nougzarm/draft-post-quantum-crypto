@@ -1,4 +1,4 @@
-from constants import ZETA, CONST_Q
+from constants import ZETA, Q
 
 def BitRev(i: int, L=7) -> int:
     reversed_i = 0
@@ -10,4 +10,4 @@ def BitRev(i: int, L=7) -> int:
     return reversed_i
 
 if __name__ == '__main__':
-    print([(ZETA**BitRev(i)) % CONST_Q for i in range(128)])
+    print([(ZETA**BitRev(i)) % Q for i in range(128)])
