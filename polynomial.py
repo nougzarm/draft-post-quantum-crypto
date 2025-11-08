@@ -260,11 +260,7 @@ if __name__ == '__main__':
     print(f"Soustraction (a - b): {d}")
     print(f"Coefficient d[0]: {d[0]}")
 
-    p1 = Polynomial([1, 2] + [0]*254) # p1 = 1 + 2X
-    p2 = Polynomial([3, 4] + [0]*254) # p2 = 3 + 4X
-
-    p_standard = p1 * p2
-    p_ntt = NTT(p1) * NTT(p2)
-    p_rev = inverse_NTT(p_ntt)
-    print(f"Standard : {p_standard}") # Attendu: [3, 10, 8, 0, ...]
-    print(f"Reversé : {p_rev}") # Attendu: [3, 10, 8, 0, ...]
+    p1 = Polynomial([1, 2, 4, 4, 3, 1, 6, 6, 4, 3] + [0]*246)
+    p2 = Polynomial([3, 4, 8, 10, 27, 273, 12, 982, 12, 42, 9] + [0]*245)
+    assert inverse_NTT(NTT(p1) * NTT(p2)) == p1 * p2
+    print(f"Produit p1 * p2 = {p1 * p2}") # Affiche le produit
