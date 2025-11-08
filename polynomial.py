@@ -1,4 +1,4 @@
-from constants import N, Q
+from constants import N, Q, ZETAS
 from xof import XOF
 from conversion import *
 
@@ -213,6 +213,20 @@ def SamplePolyCBD(B: bytes, eta=3) -> Polynomial:
         f[i] = (x - y) % Q
     return Polynomial(f)
 
+def NNT(f: Polynomial) -> PolynomialNNT:
+    C = f.coeffs
+    i = 1
+    len = 128
+    while len > 1:
+        for start in range(0, 256, 2*len):
+            zeta = ZETAS[i]
+            i += 1
+            for j in range(start, start + len, 1):
+                t = zeta * C[j + len]
+                C[j + len] = C[j] - t
+                C[j] = C[j] + t
+        len = len // 2
+    return PolynomialNNT(C)
 
 
 # --- Exemple d'utilisation ---
@@ -258,3 +272,5 @@ if __name__ == '__main__':
     # (supposons n=4 pour l'exemple)
     # (X^2) * (X^3) = X^5 = X^(4+1) = X^4 * X^1 = -1 * X^1 = -X
     # (Testez ceci en changeant KYBER_N=4 temporairement)
+
+    print(f"Standard : {NNT(p_standard).coeffs}") 
