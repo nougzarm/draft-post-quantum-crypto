@@ -1,4 +1,5 @@
 from Crypto.Hash import SHAKE128
+from hashlib import shake_256
 
 class XOF:
     def __init__(self):
@@ -13,10 +14,17 @@ class XOF:
 
     def Squeeze(self, length: int) -> bytes:
         return self._shake.read(length)
+    
+def PRF(eta, s: bytes, b: bytes):
+    if eta != 2 and eta != 3:
+        raise ValueError(f"Mauvaise valeur pour eta")
+    
+    shake = shake_256(s + b)
+    return shake.digest(8 * 64 * eta)
 
 if __name__ == '__main__':
-    func = XOF.Init()
-    func.Absorb(b"Ceci est un test pour XOF")
-
-    bytes = func.Squeeze(32)
-    print(f"32 premiers octets  : {bytes.hex()}")
+    prf_result = PRF(3, b"qjdhfyritoprlkdjfkrjfbdnzyhdjrtr", b"a")
+    shake = shake_256()
+    shake.update(b"qjdhfyritoprlkdjfkrjfbdnzyhdjrtr" + b"a")
+    manual_res = shake.digest(8*64*3)
+    assert prf_result == manual_res
