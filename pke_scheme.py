@@ -4,13 +4,25 @@ from polynomial import *
 from conversion import *
 
 """ 
+Valeurs des paramètres approuvées :
+1ere configuration : k = 2, eta_1 = 3, eta_2 = 2, d_u = 10, d_v = 4
+2eme configuration : k = 3, eta_1 = 2, eta_2 = 2, d_u = 10, d_v = 4
+3eme configuration : k = 4, eta_1 = 2, eta_2 = 2, d_u = 11, d_v = 5
+"""
+
+""" 
 Algorithm 13 : K-PKE.KeyGen(d)
 
 Input : randomness d in B^32
 Output : (ek, dk) pair of encryption-decryption keys
 with : ek in B^(384*k + 32), and dk in B^(384*k)
 """
-def PKE_KeyGen(d, k, eta_1):
+def PKE_KeyGen(d: bytes, k: int, eta_1: int):
+    if k not in (2, 3, 4):
+        raise ValueError(f"Mauvaise valeur de paramètre k.")
+    if eta_1 not in (2, 3):
+        raise ValueError(f"Mauvaise valeur de paramètre eta_1.")
+    
     if len(d) != 32:
         raise ValueError(f"Mauvaise longueur de la seed")
 
@@ -63,6 +75,13 @@ Input : randomness r in B^32
 Output : ciphertext c in B^(32 * (d_u * k + d_v))
 """
 def PKE_Encrypt(ek: bytes, m: bytes, r: bytes, k: int, eta_1: int, eta_2: int, d_u: int, d_v: int):
+    if k not in (2, 3, 4):
+        raise ValueError(f"Mauvaise valeur de paramètre k.")
+    if eta_1 not in (2, 3) or eta_2 not in (2, 3):
+        raise ValueError(f"Mauvaise valeur de paramètre eta_1 ou eta_2.")
+    if d_u not in range(12) or d_v not in range(12):
+        raise ValueError(f"Mauvaise valeur de paramètre d_u ou d_v.")
+    
     if len(ek) != 384*k + 32 or len(m) != 32 or len(r) != 32:
         raise ValueError(f"Mauvaise longueur d'une des entrées ek, m ou r")
     
@@ -120,6 +139,14 @@ Input : ciphertext c in B^(32 * (d_u*k + d_v))
 Output : message m in B^32
 """
 def PKE_Decrypt(dk: bytes, c: bytes, k: int, d_u: int, d_v: int) -> bytes:
+    if k not in (2, 3, 4):
+        raise ValueError(f"Mauvaise valeur de paramètre k.")
+    if d_u not in range(12) or d_v not in range(12):
+        raise ValueError(f"Mauvaise valeur de paramètre d_u ou d_v.")
+    
+    if len(dk) != 384*k or len(c) != 32*(d_u*k + d_v):
+        raise ValueError(f"Mauvaise longueur d'une des entrées ek, m ou r")
+
     c_1 = c[0:32 * d_u * k]
     c_2 = c[32 * d_u * k:32 * (d_u * k + d_v)]
 
