@@ -51,7 +51,6 @@ class Polynomial:
             return NotImplemented
             
         new_coeffs = [0] * N
-        
         for i in range(N):
             for j in range(N):
                 product = (self.coeffs[i] * other.coeffs[j])
@@ -62,7 +61,7 @@ class Polynomial:
                 else:
                     k_prime = k - N
                     new_coeffs[k_prime] = (new_coeffs[k_prime] - product) % Q
-                    
+ 
         return Polynomial(new_coeffs)
     
     def __eq__(self, other):

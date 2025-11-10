@@ -6,9 +6,7 @@ from conversion import ByteEncode
 Correspond à l'algorithme 13
 """
 def PKE_KeyGen(d, k, eta_1):
-    rh_gam = G(d + bytes([k]))
-    rho = rh_gam[:32]
-    gamma = rh_gam[32:]
+    rho, gamma = G(d + bytes([k]))
     N = 0
 
     A_ntt = []

@@ -43,9 +43,12 @@ def J(s: bytes) -> bytes:
 """ 
 Correspond à la définition dans (4.5)
 """
-def G(c: bytes) -> bytes:
+def G(c: bytes):
     hash_obj = sha3_512(c)
-    return hash_obj.digest()
+    result = hash_obj.digest()
+    a = result[:32]
+    b = result[32:]
+    return a, b
 
 
 """ 
