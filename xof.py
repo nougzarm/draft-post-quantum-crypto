@@ -27,7 +27,7 @@ def PRF(eta, s: bytes, b: bytes):
         raise ValueError(f"Mauvaise valeur pour eta")
     
     shake = shake_256(s + b)
-    return shake.digest(8 * 64 * eta)
+    return shake.digest(64 * eta)
 
 """ 
 Correspond aux définitions dans (4.4)

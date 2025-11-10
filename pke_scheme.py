@@ -35,6 +35,7 @@ def PKE_KeyGen(d, k, eta_1):
         for j in range(k):
             pol_temp = pol_temp + A_ntt[i][j] * s_ntt[j]
         pol_temp = pol_temp + e_ntt[i]
+        t_ntt.append(pol_temp)
     
     ek = b""
     dk = b""
@@ -44,3 +45,9 @@ def PKE_KeyGen(d, k, eta_1):
     ek = ek + rho
 
     return ek, dk
+
+# --- Exemple d'utilisation et tests ---
+if __name__ == '__main__':
+    ek, dk = PKE_KeyGen(b"Salut de la part de moi meme lee", 3, 3)
+    print(ek)
+    print(dk)
