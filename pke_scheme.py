@@ -156,14 +156,13 @@ def PKE_Decrypt(dk: bytes, c: bytes, k: int, d_u: int, d_v: int) -> bytes:
 
 # --- Exemple d'utilisation et tests ---
 if __name__ == '__main__':
-    k, eta_1, eta_2, d_u, d_v = 3, 3, 3, 10, 4
+    k, eta_1, eta_2, d_u, d_v = 3, 2, 2, 10, 4
     seed = b"Salut de la part de moi meme lee"
 
     ek, dk = PKE_KeyGen(seed, k, eta_1)
 
-    message = b"Salut de la part de moi meme lee"
+    message = b"Ce message est tres confidentiel"
     ciphertext = PKE_Encrypt(ek, message, seed, k, eta_1, eta_2, d_u, d_v)
 
     mess_decrypt = PKE_Decrypt(dk, ciphertext, k, d_u, d_v)
     print(mess_decrypt)
-    
