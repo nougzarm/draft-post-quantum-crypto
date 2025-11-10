@@ -21,6 +21,7 @@ class XOF:
     
 """ 
 Correspond à la définition dans (4.2) et (4.3)
+PRF : {2, 3} x B^32 x B -> B^(64*eta)
 """
 def PRF(eta, s: bytes, b: bytes):
     if eta != 2 and eta != 3:
@@ -31,6 +32,8 @@ def PRF(eta, s: bytes, b: bytes):
 
 """ 
 Correspond aux définitions dans (4.4)
+H : B* -> B^32
+J : B* -> B^32
 """
 def H(s: bytes) -> bytes:
     hash_obj = sha3_256(s)
@@ -42,6 +45,7 @@ def J(s: bytes) -> bytes:
 
 """ 
 Correspond à la définition dans (4.5)
+G : B* -> B^32 x B^32
 """
 def G(c: bytes):
     hash_obj = sha3_512(c)
