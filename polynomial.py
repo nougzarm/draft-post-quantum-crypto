@@ -3,6 +3,24 @@ from xof import XOF
 from conversion import *
 from utils import MultiplyNTTs
 
+def add_lists(a: list, b: list):
+    if len(a) != len(b):
+        raise ValueError(f"Listes de longueurs différentes")
+    
+    new_list = []
+    for i in range(len(a)):
+        new_list.append((a[i] + b[i]) % Q)
+    return new_list
+
+def sub_lists(a: list, b: list):
+    if len(a) != len(b):
+        raise ValueError(f"Listes de longueurs différentes")
+    
+    new_list = []
+    for i in range(len(a)):
+        new_list.append((a[i] - b[i]) % Q)
+    return new_list
+
 class Polynomial:
     """
     Représente un polynôme dans l'anneau R_Q = Z_Q[X] / (X^N + 1)
@@ -20,23 +38,13 @@ class Polynomial:
         if not isinstance(other, Polynomial):
             return NotImplemented
             
-        new_coeffs = []
-        for i in range(N):
-            new_coeff = (self.coeffs[i] + other.coeffs[i]) % Q
-            new_coeffs.append(new_coeff)
-            
-        return Polynomial(new_coeffs)
+        return Polynomial(add_lists(self.coeffs, other.coeffs))
 
     def __sub__(self, other):
         if not isinstance(other, Polynomial):
             return NotImplemented
             
-        new_coeffs = []
-        for i in range(N):
-            new_coeff = (self.coeffs[i] - other.coeffs[i]) % Q
-            new_coeffs.append(new_coeff)
-            
-        return Polynomial(new_coeffs)
+        return Polynomial(sub_lists(self.coeffs, other.coeffs))
     
     def __mul__(self, other):
         if not isinstance(other, Polynomial):
@@ -124,6 +132,18 @@ class PolynomialNTT:
             if len(coeffs) != N:
                 raise ValueError(f"Le polynôme doit avoir exactement {N} coefficients, mais en a reçu {len(coeffs)}")
             self.coeffs = [int(c) % Q for c in coeffs]
+
+    def __add__(self, other):
+        if not isinstance(other, PolynomialNTT):
+            return NotImplemented
+            
+        return PolynomialNTT(add_lists(self.coeffs, other.coeffs))
+
+    def __sub__(self, other):
+        if not isinstance(other, PolynomialNTT):
+            return NotImplemented
+            
+        return PolynomialNTT(sub_lists(self.coeffs, other.coeffs))
 
     def __mul__(self, other):
         if not isinstance(other, PolynomialNTT):
