@@ -26,7 +26,7 @@ Output : b in {0, 1}^(8*r)
 """
 def BytesToBits(B: bytes):
     C = list(B)
-    b = [0] * (8*len(C))
+    b = [0] * (8 * len(C))
     for i in range(len(C)):
         for j in range(8):
             b[8*i + j] = C[i] % 2
@@ -40,7 +40,13 @@ Encodes an array of d-bit integers into a byte array for 1 <= d <= 12
 Input : integer array F in Z_m^N, where m = 2^d if d < 12, and m = Q if d = 12
 Output : B in B^(32*d)
 """
-def ByteEncode(F, d=CONST_d) -> bytes:
+def ByteEncode(F: list, d: int = CONST_d) -> bytes:
+    if d > 12 or d < 0 :
+        raise ValueError(f"Mauvaise valeur de d")
+
+    if len(F) != N:
+        raise ValueError(f"Mauvaise longueur")
+    
     b = [0] * (N * d)
     for i in range(N):
         a = F[i]
@@ -57,9 +63,17 @@ Decodes a byte array into an array of d-bit integers for 1 <= d <= 12
 Input : B in B^(32*d)
 Output : integer array F in Z_m^N, where m = 2^d if d < 12, and m = Q if d = 12
 """
-def ByteDecode(B: bytes, d=CONST_d, m=Q):
+def ByteDecode(B: bytes, d=CONST_d):
+    if d > 12 or d < 0 :
+        raise ValueError(f"Mauvaise valeur de d")
+
     if len(B) // 32 != d:
         raise ValueError(f"Mauvaise longueur")
+    
+    if d == CONST_d:
+        m = Q
+    else:
+        m = 2**d
 
     F = [0] * N
     b = BytesToBits(B)
@@ -71,7 +85,6 @@ def ByteDecode(B: bytes, d=CONST_d, m=Q):
 if __name__ == '__main__':
     B = b"salut tous le monde. Comment allez vous"
     assert BitToBytes(BytesToBits(B)) == B
-    print("test réussi")
 
     b = [1, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0,
         0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 
@@ -84,7 +97,9 @@ if __name__ == '__main__':
         1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 
         1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0]
     assert BytesToBits(BitToBytes(b)) == b
-    print("test réussi")
 
+    from polynomial import SampleNTT
 
-
+    F = SampleNTT(b"Salut de la part de moi meme le ka").coeffs
+    F_rev = ByteDecode(ByteEncode(F))
+    assert F == F_rev
