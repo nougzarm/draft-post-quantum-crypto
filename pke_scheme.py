@@ -22,9 +22,8 @@ def PKE_KeyGen(d: bytes, k: int, eta_1: int):
         raise ValueError(f"Mauvaise valeur de paramètre k.")
     if eta_1 not in (2, 3):
         raise ValueError(f"Mauvaise valeur de paramètre eta_1.")
-    
     if len(d) != 32:
-        raise ValueError(f"Mauvaise longueur de la seed")
+        raise ValueError(f"Mauvaise longueur de la seed d")
 
     rho, gamma = G(d + bytes([k]))
     N_var = 0
@@ -46,24 +45,19 @@ def PKE_KeyGen(d: bytes, k: int, eta_1: int):
         e.append(SamplePolyCBD(PRF(eta_1, gamma, bytes([N_var])), eta_1))
         N_var += 1
     
-    s_ntt = [NTT(s[i]) for i in range(k)]
-    e_ntt = [NTT(e[i]) for i in range(k)]
+    s_ntt = [NTT(poly) for poly in s]
+    e_ntt = [NTT(poly) for poly in e]
 
     t_ntt = []
     for i in range(k):
         pol_temp = PolynomialNTT()
         for j in range(k):
             pol_temp = pol_temp + A_ntt[i][j] * s_ntt[j]
-        pol_temp = pol_temp + e_ntt[i]
-        t_ntt.append(pol_temp)
+        t_ntt.append(pol_temp + e_ntt[i])
     
-    ek = b""
-    dk = b""
-    for i in range(k):
-        ek = ek + ByteEncode(t_ntt[i].coeffs)
-        dk = dk + ByteEncode(s_ntt[i].coeffs)
-    ek = ek + rho
-
+    ek = b"".join([ByteEncode(poly.coeffs, CONST_d) for poly in t_ntt]) + rho
+    dk = b"".join([ByteEncode(poly.coeffs, CONST_d) for poly in s_ntt])
+    
     return ek, dk
 
 """ 
@@ -75,10 +69,8 @@ Input : randomness r in B^32
 Output : ciphertext c in B^(32 * (d_u * k + d_v))
 """
 def PKE_Encrypt(ek: bytes, m: bytes, r: bytes, k: int, eta_1: int, eta_2: int, d_u: int, d_v: int):
-    if k not in (2, 3, 4):
-        raise ValueError(f"Mauvaise valeur de paramètre k.")
-    if eta_1 not in (2, 3) or eta_2 not in (2, 3):
-        raise ValueError(f"Mauvaise valeur de paramètre eta_1 ou eta_2.")
+    if k not in (2, 3, 4): raise ValueError(f"Mauvaise valeur de k.")
+    if eta_1 not in (2, 3) or eta_2 not in (2, 3): raise ValueError(f"Mauvaise valeur eta_1 ou eta_2.")
     if d_u not in range(12) or d_v not in range(12):
         raise ValueError(f"Mauvaise valeur de paramètre d_u ou d_v.")
     
@@ -107,7 +99,7 @@ def PKE_Encrypt(ek: bytes, m: bytes, r: bytes, k: int, eta_1: int, eta_2: int, d
         N_var += 1
 
     e_2 = SamplePolyCBD(PRF(eta_2, r, bytes([N_var])), eta_2)
-    y_ntt = [NTT(y[i]) for i in range(k)]
+    y_ntt = [NTT(poly) for poly in y]
 
     u = []
     for i in range(k):
@@ -116,18 +108,15 @@ def PKE_Encrypt(ek: bytes, m: bytes, r: bytes, k: int, eta_1: int, eta_2: int, d
             pol_temp = pol_temp + A_ntt[j][i] * y_ntt[j]
         u.append(inverse_NTT(pol_temp) + e_1[i])
     
-    mu_temp = ByteDecode(m, 1)
-    mu = Polynomial([Decompress(mu_temp[i], 1) for i in range(N)])
+    mu = Polynomial([Decompress(b, 1) for b in ByteDecode(m, 1)])
 
     v_ntt_temp = PolynomialNTT()
     for i in range(k):
         v_ntt_temp += t_ntt[i] * y_ntt[i]
     v = inverse_NTT(v_ntt_temp) + e_2 + mu
 
-    c_1 = b""
-    for i in range(k):
-        c_1 += ByteEncode([Compress(u[i].coeffs[j], d_u) for j in range(N)], d_u)
-    c_2 = ByteEncode([Compress(v.coeffs[i], d_v) for i in range(N)], d_v)
+    c_1 = b"".join([ByteEncode([Compress(coeff, d_u) for coeff in poly.coeffs], d_u) for poly in u])
+    c_2 = ByteEncode([Compress(coeff, d_v) for coeff in v.coeffs], d_v)
 
     return c_1 + c_2
 
@@ -147,32 +136,34 @@ def PKE_Decrypt(dk: bytes, c: bytes, k: int, d_u: int, d_v: int) -> bytes:
     if len(dk) != 384*k or len(c) != 32*(d_u*k + d_v):
         raise ValueError(f"Mauvaise longueur d'une des entrées ek, m ou r")
 
-    c_1 = c[0:32 * d_u * k]
-    c_2 = c[32 * d_u * k:32 * (d_u * k + d_v)]
+    c_1 = c[:32 * d_u * k]
+    c_2 = c[32 * d_u * k:]
 
     u_prime = []
     for i in range(k):
         decode = ByteDecode(c_1[32*d_u*i:32*d_u*(i+1)], d_u)
-        u_prime.append(Polynomial([Decompress(decode[j], d_u) for j in range(N)]))
+        u_prime.append(Polynomial([Decompress(coeff, d_u) for coeff in decode]))
 
-    v_prime = Polynomial([Decompress(ByteDecode(c_2, d_u)[j], d_u) for j in range(N)])
+    v_prime = Polynomial([Decompress(coeff, d_v) for coeff in ByteDecode(c_2, d_v)])
 
     s_ntt = [PolynomialNTT(ByteDecode(dk[384*i:384*(i+1)], CONST_d)) for i in range(k)]
     pdt_temp = PolynomialNTT()
     for i in range(k):
         pdt_temp += s_ntt[i] * NTT(u_prime[i])
     w = v_prime - inverse_NTT(pdt_temp)
-    m = ByteEncode([Compress(w.coeffs[i], 1) for i in range(N)], 1)
+    m = ByteEncode([Compress(coeff, 1) for coeff in w.coeffs], 1)
     return m
 
 # --- Exemple d'utilisation et tests ---
 if __name__ == '__main__':
-    ek, dk = PKE_KeyGen(b"Salut de la part de moi meme lee", 3, 3)
-    print(ek)
-    print(dk)
+    k, eta_1, eta_2, d_u, d_v = 3, 3, 3, 10, 4
+    seed = b"Salut de la part de moi meme lee"
 
-    ciphertext = PKE_Encrypt(ek, b"Salut de la part de moi meme lee", b"Salut de la part de moi meme lee", 3, 3, 3, 11, 11)
-    print(ciphertext)
+    ek, dk = PKE_KeyGen(seed, k, eta_1)
 
-    mess_decrypt = PKE_Decrypt(dk, ciphertext, 3, 11, 11)
+    message = b"Salut de la part de moi meme lee"
+    ciphertext = PKE_Encrypt(ek, message, seed, k, eta_1, eta_2, d_u, d_v)
+
+    mess_decrypt = PKE_Decrypt(dk, ciphertext, k, d_u, d_v)
     print(mess_decrypt)
+    
