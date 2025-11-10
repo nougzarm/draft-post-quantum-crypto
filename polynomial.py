@@ -97,13 +97,13 @@ class Polynomial:
             if c != 1 or i == 0:
                 term_str += str(c)
                 
-            if i > 0: # Terme non constant
+            if i > 0:
                 if c != 1:
                     term_str += "*"
                      
-                term_str += "X" # Ajoute 'X'
+                term_str += "X" 
                 if i > 1:
-                    term_str += f"^{i}" # Ajoute la puissance
+                    term_str += f"^{i}" 
             
             terms.append(term_str)
         
