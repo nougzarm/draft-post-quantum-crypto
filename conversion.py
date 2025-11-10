@@ -1,4 +1,4 @@
-from constants import CONST_d
+from constants import CONST_d, Q, N
 
 def BitToBytes(b) -> bytes:
     if len(b) % 8 != 0:
@@ -20,8 +20,8 @@ def BytesToBits(B: bytes):
     return b
 
 def ByteEncode(F, d=CONST_d) -> bytes:
-    b = [0] * (256*d)
-    for i in range(256):
+    b = [0] * (N * d)
+    for i in range(N):
         a = F[i]
         for j in range(d):
             b[i*d + j] = a % 2
@@ -29,13 +29,13 @@ def ByteEncode(F, d=CONST_d) -> bytes:
     B = BitToBytes(b)
     return B
 
-def ByteDecode(B: bytes, d=CONST_d, m=3329):
+def ByteDecode(B: bytes, d=CONST_d, m=Q):
     if len(B) // 32 != d:
         raise ValueError(f"Mauvaise longueur")
 
-    F = [0] * 256
+    F = [0] * N
     b = BytesToBits(B)
-    for i in range(256):
+    for i in range(N):
         for j in range(d):
             F[i] = (F[i] + b[i*d + j] * (2**j)) % m
     return F

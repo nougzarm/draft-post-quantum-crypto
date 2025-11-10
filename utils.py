@@ -1,4 +1,4 @@
-from constants import Q, ZETA, ZETAS
+from constants import Q, N, ZETA, ZETAS
 
 def BitRev(i: int, L=7) -> int:
     reversed_i = 0
@@ -10,13 +10,14 @@ def BitRev(i: int, L=7) -> int:
     return reversed_i
 
 """ 
-Correspond à l'algorithme 11 de la spec 
+Correspond à l'algorithme 11 de la spec
+Il s'agit du coeur de la multiplication entre deux éléments de l'anneau T_Q
 """
 def MultiplyNTTs(f_ntt: list, g_ntt: list):
-    if len(f_ntt) != len(g_ntt) or len(f_ntt) % 2 != 0:
+    if len(f_ntt) != N or len(g_ntt) != N:
         raise ValueError(f"Longueurs incompatibles")
 
-    h_ntt = [0] * 256
+    h_ntt = [0] * N
     for i in range(128):
         gamma = ((ZETAS[i]**2) * ZETA) % Q
         C = BaseCaseMultiply(f_ntt[2*i], f_ntt[2*i + 1], g_ntt[2*i], g_ntt[2*i + 1], gamma)

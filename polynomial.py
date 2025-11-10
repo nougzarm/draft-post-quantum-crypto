@@ -152,38 +152,46 @@ class PolynomialNTT:
         return PolynomialNTT(product_list)
 
 """ 
-Correspond à l'algorithme 7 de la spec 
+Correspond à l'algorithme 7 de la spec
+Input : B in B^34
+Output : a in PolynomialNTT
 """
 def SampleNTT(B: bytes) -> PolynomialNTT:
     if len(B) != 34:
         raise ValueError(f"Mauvaise taille pour B")
     
-    a = [0] * 256
+    a = [0] * N
     ctx = XOF.Init()
     ctx.Absorb(B)
     j = 0
-    while j < 256:
+    while j < N:
         C = ctx.Squeeze(3)
-        d1 = C[0] + 256*(C[1] % 16)
+        d1 = C[0] + N*(C[1] % 16)
         d2 = (C[1] // 16) + 16*C[2]
         if d1 < Q:
             a[j] = d1
             j += 1
-        if d2 < Q and j < 256:
+        if d2 < Q and j < N:
             a[j] = d2
             j += 1
     return PolynomialNTT(a)
 
 """ 
-Correspond à l'algorithme 8 de la spec 
+Correspond à l'algorithme 8 de la spec
+Input : B in B^(64*eta)
+avec eta dans {2, 3}
+Output : f in Polynomial
 """
 def SamplePolyCBD(B: bytes, eta=3) -> Polynomial:
+    if eta != 2 and eta != 3:
+        raise ValueError(f"Mauvaise valeur pour eta")
+    
     if len(B) != 64*eta:
         raise ValueError(f"Mauvaise taille pour B")
     
     b = BytesToBits(B)
-    f = [0] * 256
-    for i in range(256):
+    f = [0] * N
+    for i in range(N):
         x = 0
         for j in range(eta):
             x += b[2*i*eta + j]
@@ -194,14 +202,14 @@ def SamplePolyCBD(B: bytes, eta=3) -> Polynomial:
     return Polynomial(f)
 
 """ 
-Correspond à l'algorithme 9 de la spec 
+Correspond à l'algorithme 9 de la spec
 """
 def NTT(f: Polynomial) -> PolynomialNTT:
     C = f.coeffs.copy()
     i = 1
     len = 128
     while len > 1:
-        for start in range(0, 256, 2 * len):
+        for start in range(0, N, 2 * len):
             zeta = ZETAS[i]
             i += 1
             for j in range(start, start + len, 1):
@@ -212,14 +220,14 @@ def NTT(f: Polynomial) -> PolynomialNTT:
     return PolynomialNTT(C)
 
 """ 
-Correspond à l'algorithme 10 de la spec 
+Correspond à l'algorithme 10 de la spec
 """
 def inverse_NTT(f_ntt: PolynomialNTT) -> Polynomial:
     C = f_ntt.coeffs.copy()
     i = 127
     len = 2 
     while len <= 128:
-        for start in range(0, 256, 2 * len):
+        for start in range(0, N, 2 * len):
             zeta = ZETAS[i]
             i -= 1
             for j in range(start, start + len, 1):
@@ -228,7 +236,7 @@ def inverse_NTT(f_ntt: PolynomialNTT) -> Polynomial:
                 C[j + len] = (zeta * (C[j + len] - t)) % Q
         len = len * 2
 
-    for i in range(256):
+    for i in range(N):
         C[i] = (C[i] * 3303) % Q
 
     return Polynomial(C)
