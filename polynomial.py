@@ -152,7 +152,7 @@ class PolynomialNTT:
         return PolynomialNTT(product_list)
 
 """ 
-Correspond à l'algorithme 7 de la spec
+Algorithm 7
 Input : B in B^34
 Output : a in PolynomialNTT
 """
@@ -177,7 +177,7 @@ def SampleNTT(B: bytes) -> PolynomialNTT:
     return PolynomialNTT(a)
 
 """ 
-Correspond à l'algorithme 8 de la spec
+Algorithm 8
 Input : B in B^(64*eta)
 avec eta dans {2, 3}
 Output : f in Polynomial
@@ -202,7 +202,7 @@ def SamplePolyCBD(B: bytes, eta=3) -> Polynomial:
     return Polynomial(f)
 
 """ 
-Correspond à l'algorithme 9 de la spec
+Algorithm 9
 """
 def NTT(f: Polynomial) -> PolynomialNTT:
     C = f.coeffs.copy()
@@ -220,7 +220,7 @@ def NTT(f: Polynomial) -> PolynomialNTT:
     return PolynomialNTT(C)
 
 """ 
-Correspond à l'algorithme 10 de la spec
+Algorithm 10
 """
 def inverse_NTT(f_ntt: PolynomialNTT) -> Polynomial:
     C = f_ntt.coeffs.copy()

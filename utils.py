@@ -10,7 +10,7 @@ def BitRev(i: int, L=7) -> int:
     return reversed_i
 
 """ 
-Correspond à l'algorithme 11 de la spec
+Algorithm 11
 Il s'agit du coeur de la multiplication entre deux éléments de l'anneau T_Q
 """
 def MultiplyNTTs(f_ntt: list, g_ntt: list):
@@ -27,7 +27,7 @@ def MultiplyNTTs(f_ntt: list, g_ntt: list):
     return h_ntt
 
 """ 
-Correspond à l'algorithme 12 de la spec 
+Algorithm 12 
 """
 def BaseCaseMultiply(a0, a1, b0, b1, gamma):
     c0 = (a0*b0 + a1*b1*gamma) % Q

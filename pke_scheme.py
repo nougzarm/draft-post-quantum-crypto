@@ -3,7 +3,10 @@ from polynomial import SampleNTT, SamplePolyCBD, NTT, PolynomialNTT
 from conversion import ByteEncode
 
 """ 
-Correspond à l'algorithme 13
+Algorithm 13
+Input : randomness d in B^32
+Output : (ek, dk) pair of encryption-decryption keys 
+with : ek in B^(384*k + 32), and dk in B^(384*k)
 """
 def PKE_KeyGen(d, k, eta_1):
     rho, gamma = G(d + bytes([k]))
