@@ -57,7 +57,7 @@ def PKE_KeyGen(d, k, eta_1):
 """ 
 Algorithm 14 : K-PKE.Encrypt(ek, m, r)
 
-Input : encryption key ek in B^{384*k + 32}
+Input : encryption key ek in B^(384*k + 32)
 Input : message m in B^32
 Input : randomness r in B^32
 Output : ciphertext c in B^(32 * (d_u * k + d_v))
@@ -112,6 +112,32 @@ def PKE_Encrypt(ek: bytes, m: bytes, r: bytes, k: int, eta_1: int, eta_2: int, d
 
     return c_1 + c_2
 
+""" 
+Algorithm 15 : K-PKE.Decrypt(dk, c)
+
+Input : decryption key dk in B^(384*k)
+Input : ciphertext c in B^(32 * (d_u*k + d_v))
+Output : message m in B^32
+"""
+def PKE_Decrypt(dk: bytes, c: bytes, k: int, d_u: int, d_v: int) -> bytes:
+    c_1 = c[0:32 * d_u * k]
+    c_2 = c[32 * d_u * k:32 * (d_u * k + d_v)]
+
+    u_prime = []
+    for i in range(k):
+        decode = ByteDecode(c_1[32*d_u*i:32*d_u*(i+1)], d_u)
+        u_prime.append(Polynomial([Decompress(decode[j], d_u) for j in range(N)]))
+
+    v_prime = Polynomial([Decompress(ByteDecode(c_2, d_u)[j], d_u) for j in range(N)])
+
+    s_ntt = [PolynomialNTT(ByteDecode(dk[384*i:384*(i+1)], CONST_d)) for i in range(k)]
+    pdt_temp = PolynomialNTT()
+    for i in range(k):
+        pdt_temp += s_ntt[i] * NTT(u_prime[i])
+    w = v_prime - inverse_NTT(pdt_temp)
+    m = ByteEncode([Compress(w.coeffs[i], 1) for i in range(N)], 1)
+    return m
+
 # --- Exemple d'utilisation et tests ---
 if __name__ == '__main__':
     ek, dk = PKE_KeyGen(b"Salut de la part de moi meme lee", 3, 3)
@@ -120,3 +146,6 @@ if __name__ == '__main__':
 
     ciphertext = PKE_Encrypt(ek, b"Salut de la part de moi meme lee", b"Salut de la part de moi meme lee", 3, 3, 3, 11, 11)
     print(ciphertext)
+
+    mess_decrypt = PKE_Decrypt(dk, ciphertext, 3, 11, 11)
+    print(mess_decrypt)
