@@ -235,23 +235,17 @@ def inverse_NTT(f_ntt: PolynomialNTT) -> Polynomial:
 
 # --- Exemple d'utilisation et tests ---
 if __name__ == '__main__':
-    # Crée un polynôme 'a'
-    coeffs_a = [1, 0, 2, 3] + [0] * (N - 4)
-    a = Polynomial(coeffs_a)
+    a = Polynomial([1, 0, 2, 3] + [0] * (N - 4))
     assert inverse_NTT(NTT(a)) == a
     print(a)
 
-    # Crée un polynôme 'b'
-    coeffs_b = [1, 0, 2, 3, 7, 9] + [0] * (N - 6)
-    b = Polynomial(coeffs_b)
+    b = Polynomial([1, 0, 2, 3, 7, 9] + [0] * (N - 6))
     print(b)
 
-    # Addition
     c = a + b
     print(c) 
     print(f"Coefficient c[0]: {c[0]}") 
 
-    # Soustraction
     d = a - b
     print(f"Soustraction (a - b): {d}")
     print(f"Coefficient d[0]: {d[0]}")
