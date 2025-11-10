@@ -152,7 +152,8 @@ class PolynomialNTT:
         return PolynomialNTT(product_list)
 
 """ 
-Algorithm 7
+Algorithm 7 : SampleNTT(B)
+
 Input : B in B^34
 Output : a in PolynomialNTT
 """
@@ -177,7 +178,8 @@ def SampleNTT(B: bytes) -> PolynomialNTT:
     return PolynomialNTT(a)
 
 """ 
-Algorithm 8
+Algorithm 8 : SimplePolyCBD_eta(B)
+
 Input : B in B^(64*eta)
 avec eta dans {2, 3}
 Output : f in Polynomial
@@ -262,3 +264,6 @@ if __name__ == '__main__':
     p2 = Polynomial([3, 4, 8, 10, 27, 273, 12, 982, 12, 42, 9] + [0]*245)
     assert inverse_NTT(NTT(p1) * NTT(p2)) == p1 * p2
     # print(f"Produit p1 * p2 = {p1 * p2}") # Affiche le produit
+
+    from conversion import round_up
+    print(round_up(2.5))

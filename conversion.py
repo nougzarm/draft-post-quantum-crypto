@@ -1,5 +1,30 @@
 from constants import CONST_d, Q, N
 
+def round_up(x):
+    if x % 1 == 1/2:
+        return round(x) + 1
+    else:
+        return round(x)
+    
+"""
+Compression and decompression functions
+
+Compress_d : Z_Q -> Z_(2**d)
+Decompress_d : Z_(2**d) -> Z_Q
+"""
+def Compress(x: int, d: int):
+    if d < 0 or d > 11:
+        raise ValueError(f"Mauvaise valeur de d")
+    
+    d_pow = 2**d
+    return round_up((d_pow/Q)*x) % d_pow
+
+def Decompress(y: int, d: int):
+    if d < 0 or d > 11:
+        raise ValueError(f"Mauvaise valeur de d")
+    
+    return round_up((Q / (2**d)) * y)
+
 """ 
 Algorithm 3 : BitsToBytes(b)
 Converts a bit array (of a length that is a multiple of eight) into an array of bytes.
@@ -83,6 +108,9 @@ def ByteDecode(B: bytes, d=CONST_d):
     return F
 
 if __name__ == '__main__':
+    assert Decompress(Compress(1933, 11), 11) == 1933
+    assert Compress(Decompress(2001, 11), 11) == 2001
+
     B = b"salut tous le monde. Comment allez vous"
     assert BitToBytes(BytesToBits(B)) == B
 
