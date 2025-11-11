@@ -27,12 +27,6 @@ class K_PKE:
         self.d_u = d_u
         self.d_v = d_v
 
-        # Calcul des longueurs de clés basées sur les paramètres
-        """ self.ek_bytes = POLY_BYTES * self.k + SEED_BYTES
-        self.dk_bytes = (POLY_BYTES * self.k) * 2 + SEED_BYTES + SEED_BYTES
-        self.ct_bytes = 32 * (self.d_u * self.k + self.d_v) """
-
-
     """ 
     Algorithm 13 : K-PKE.KeyGen(d)
 
