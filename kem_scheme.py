@@ -70,7 +70,7 @@ class ML_KEM:
     Generates an encapsulation key and a corresponding decapsulation key.
 
     Output : encapsulation key ek in B^(384*k + 32)
-    output : decapsulation key dk in B^(768*k + 96)
+    Output : decapsulation key dk in B^(768*k + 96)
     """
     def KeyGen(self):
         seed_d = secrets.token_bytes(32)
