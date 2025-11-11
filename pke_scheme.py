@@ -3,23 +3,16 @@ from hash import G, PRF
 from polynomial import *
 from conversion import *
 
-""" 
-Valeurs des paramètres approuvées :
-1ere configuration : k = 2, eta_1 = 3, eta_2 = 2, d_u = 10, d_v = 4
-2eme configuration : k = 3, eta_1 = 2, eta_2 = 2, d_u = 10, d_v = 4
-3eme configuration : k = 4, eta_1 = 2, eta_2 = 2, d_u = 11, d_v = 5
-"""
-
 class K_PKE:
     """
-    Implémente le schéma K-PKE (FIPS 203) en tant que classe
-    qui contient les paramètres du schéma.
+    Implements the K-PKE (FIPS 203) scheme as a class 
+    which contains the scheme parameters.
     """
     def __init__(self, k: int, eta_1: int, eta_2: int, d_u: int, d_v: int):
         if k not in (2, 3, 4):
-            raise ValueError(f"Mauvaise valeur de k: {k}")
+            raise ValueError(f"Unauthorized value for k")
         if eta_1 not in (2, 3) or eta_2 not in (2, 3):
-            raise ValueError(f"Mauvaises valeurs eta: {eta_1}, {eta_2}")
+            raise ValueError(f"Unauthorized value for eta_1 or eta_2")
         
         self.k = k
         self.eta_1 = eta_1
@@ -36,7 +29,7 @@ class K_PKE:
     """
     def KeyGen(self, d: bytes):
         if len(d) != 32:
-            raise ValueError(f"Mauvaise longueur de la seed d")
+            raise ValueError(f"Unauthorized value for `d` seed length")
 
         rho, gamma = G(d + bytes([self.k]))
         N_var = 0
@@ -83,7 +76,7 @@ class K_PKE:
     """
     def Encrypt(self, ek: bytes, m: bytes, r: bytes):
         if len(ek) != 384*self.k + 32 or len(m) != 32 or len(r) != 32:
-            raise ValueError(f"Mauvaise longueur d'une des entrées ek, m ou r")
+            raise ValueError(f"Unauthorized length for ek, m or r")
         
         N_var = 0
         t_ntt = [PolynomialNTT(ByteDecode(ek[384*i : 384*(i+1)], CONST_d)) for i in range(self.k)]
@@ -137,7 +130,7 @@ class K_PKE:
     """
     def Decrypt(self, dk: bytes, c: bytes) -> bytes:
         if len(dk) != 384*self.k or len(c) != 32*(self.d_u*self.k + self.d_v):
-            raise ValueError(f"Mauvaise longueur d'une des entrées ek, m ou r")
+            raise ValueError(f"Unauthorized length for ek, m or r")
 
         c_1 = c[:32 * self.d_u * self.k]
         c_2 = c[32 * self.d_u * self.k:]
@@ -157,13 +150,15 @@ class K_PKE:
         m = ByteEncode([Compress(coeff, 1) for coeff in w.coeffs], 1)
         return m
 
-# --- Exemple d'utilisation et tests ---
+# --- Example of use and test ---
 if __name__ == '__main__':
+    # -------------------------------------------------
+    # --- Definition of parameters and K-PKE scheme ---
+    # -------------------------------------------------
     k, eta_1, eta_2, d_u, d_v = 3, 2, 2, 10, 4
-    seed = b"Salut de la part de moi meme lee"
-
     pke_scheme = K_PKE(k, eta_1, eta_2, d_u, d_v)
 
+    seed = b"Salut de la part de moi meme lee"
     ek, dk = pke_scheme.KeyGen(seed)
 
     message = b"Ce message est tres confidentiel"

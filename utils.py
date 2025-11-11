@@ -11,11 +11,11 @@ def BitRev(i: int, L=7) -> int:
 
 """ 
 Algorithm 11
-Il s'agit du coeur de la multiplication entre deux éléments de l'anneau T_Q
+This is the multiplication's core between two elements of the ring T_Q
 """
 def MultiplyNTTs(f_ntt: list, g_ntt: list):
     if len(f_ntt) != N or len(g_ntt) != N:
-        raise ValueError(f"Longueurs incompatibles")
+        raise ValueError(f"The lengths of the lists do not match")
 
     h_ntt = [0] * N
     for i in range(128):
@@ -33,6 +33,3 @@ def BaseCaseMultiply(a0, a1, b0, b1, gamma):
     c0 = (a0*b0 + a1*b1*gamma) % Q
     c1 = (a0*b1 + a1*b0) % Q
     return [c0, c1]
-
-if __name__ == '__main__':
-    print([(ZETA**BitRev(i)) % Q for i in range(128)])

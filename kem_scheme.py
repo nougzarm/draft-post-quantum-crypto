@@ -4,8 +4,8 @@ from hash import H, G, J
 
 class ML_KEM:
     """
-    Implémente le schéma ML-KEM (FIPS 203) en tant que classe
-    qui contient les paramètres du schéma.
+    Implements the ML-KEM (FIPS 203) scheme as a class 
+    which contains the scheme parameters.
     """
     def __init__(self, k: int, eta_1: int, eta_2: int, d_u: int, d_v: int):
         self.pke = K_PKE(k, eta_1, eta_2, d_u, d_v)
@@ -105,18 +105,19 @@ class ML_KEM:
         K_prime = self.Decaps_internal(dk, c)
         return K_prime
 
-# --- Exemple d'utilisation et tests ---
+# --- Example of use and test ---
 if __name__ == '__main__':
+    # --------------------------------------------------
+    # --- Definition of parameters and ML-KEM scheme ---
+    # --------------------------------------------------
     k, eta_1, eta_2, d_u, d_v = 3, 2, 2, 10, 4
-
-    # --- Test des algorithmes dits 'internal'
-    seed = b"Salut de la part de moi meme lee"
-
-    d = H(b"randomness d")
-    z = J(b"randomness z")
-
     kem_scheme = ML_KEM(k, eta_1, eta_2, d_u, d_v)
 
+    # --------------------------------------------------
+    # --- Testing of 'internal' algorithms -------------
+    # --------------------------------------------------
+    d = H(b"randomness d")
+    z = J(b"randomness z")
     ek, dk = kem_scheme.KeyGen_internal(d, z)
 
     seed = H(b"seed permettant l encapsulation")
@@ -125,9 +126,12 @@ if __name__ == '__main__':
     K_decaps = kem_scheme.Decaps_internal(dk, c)
     assert K_decaps == K
 
-    # --- Test des algorithmes principaux
+    # --------------------------------------------------
+    # --- Testing of main algorithms -------------------
+    # --------------------------------------------------
     ek, dk = kem_scheme.KeyGen()
 
     K, c = kem_scheme.Encaps(ek)
+
     K_decaps = kem_scheme.Decaps(dk, c)
     assert K_decaps == K

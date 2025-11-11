@@ -5,7 +5,7 @@ from utils import MultiplyNTTs
 
 def add_lists(a: list, b: list):
     if len(a) != len(b):
-        raise ValueError(f"Listes de longueurs différentes")
+        raise ValueError(f"The lengths of the lists do not match")
     
     new_list = []
     for i in range(len(a)):
@@ -14,7 +14,7 @@ def add_lists(a: list, b: list):
 
 def sub_lists(a: list, b: list):
     if len(a) != len(b):
-        raise ValueError(f"Listes de longueurs différentes")
+        raise ValueError(f"The lengths of the lists do not match")
     
     new_list = []
     for i in range(len(a)):
@@ -23,7 +23,7 @@ def sub_lists(a: list, b: list):
 
 class Polynomial:
     """
-    Représente un polynôme dans l'anneau R_Q = Z_Q[X] / (X^N + 1)
+    Represents a polynomial in the ring R_Q = Z_Q[X] / (X^N + 1)
     """
     
     def __init__(self, coeffs=None):
@@ -31,7 +31,7 @@ class Polynomial:
             self.coeffs = [0] * N
         else:
             if len(coeffs) != N:
-                raise ValueError(f"Le polynôme doit avoir exactement {N} coefficients, mais en a reçu {len(coeffs)}")
+                raise ValueError(f"The polynomial must have exactly {N} coefficients")
             self.coeffs = [int(c) % Q for c in coeffs]
 
     def __add__(self, other):
@@ -66,8 +66,7 @@ class Polynomial:
     
     def __eq__(self, other):
         """
-        Surcharge l'opérateur ==.
-        La vérification se fait en TEMPS CONSTANT
+        The verification is done in CONSTANT TIME
         """
         if not isinstance(other, Polynomial):
             return NotImplemented
@@ -79,12 +78,7 @@ class Polynomial:
 
         return result
 
-    # --- Méthodes utilitaires pour un usage facile ---
     def __repr__(self):
-        """
-        Affiche le polynôme sous une forme mathématique lisible.
-        ex: 8X^2 + 10X + 3
-        """
         terms = []
         for i in range(N - 1, -1, -1):
             c = self.coeffs[i]
@@ -113,23 +107,21 @@ class Polynomial:
         return " + ".join(terms)
 
     def __getitem__(self, index):
-        """Permet d'accéder à un coefficient (ex: poly[i])."""
         return self.coeffs[index]
 
     def __setitem__(self, index, value):
-        """Permet de définir un coefficient (ex: poly[i] = v)."""
         self.coeffs[index] = int(value) % Q
     
 class PolynomialNTT:
     """
-    Représente un polynôme dans l'anneau T_Q : somme direct des Z_Q[X] / (X^2 - ZETA**(2*BitRev(i) + 1))
+    Represents a polynomial in the ring T_Q: direct sum of Z_Q[X] / (X^2 - ZETA**(2*BitRev(i) + 1))
     """
     def __init__(self, coeffs=None):
         if coeffs is None:
             self.coeffs = [0] * N
         else:
             if len(coeffs) != N:
-                raise ValueError(f"Le polynôme doit avoir exactement {N} coefficients, mais en a reçu {len(coeffs)}")
+                raise ValueError(f"The polynomial must have exactly {N} coefficients")
             self.coeffs = [int(c) % Q for c in coeffs]
 
     def __add__(self, other):
@@ -159,7 +151,7 @@ Output : a in PolynomialNTT
 """
 def SampleNTT(B: bytes) -> PolynomialNTT:
     if len(B) != 34:
-        raise ValueError(f"Mauvaise taille pour B")
+        raise ValueError(f"Unauthorized value for B")
     
     a = [0] * N
     ctx = XOF.Init()
@@ -186,10 +178,10 @@ Output : f in Polynomial
 """
 def SamplePolyCBD(B: bytes, eta=3) -> Polynomial:
     if eta != 2 and eta != 3:
-        raise ValueError(f"Mauvaise valeur pour eta")
+        raise ValueError(f"Unauthorized value for eta")
     
     if len(B) != 64*eta:
-        raise ValueError(f"Mauvaise taille pour B")
+        raise ValueError(f"Unauthorized length for B")
     
     b = BytesToBits(B)
     f = [0] * N
@@ -243,27 +235,12 @@ def inverse_NTT(f_ntt: PolynomialNTT) -> Polynomial:
 
     return Polynomial(C)
 
-# --- Exemple d'utilisation et tests ---
+# --- Example of use and test ---
 if __name__ == '__main__':
     a = Polynomial([1, 0, 2, 3] + [0] * (N - 4))
     assert inverse_NTT(NTT(a)) == a
     print(a)
 
-    b = Polynomial([1, 0, 2, 3, 7, 9] + [0] * (N - 6))
-    print(b)
-
-    c = a + b
-    print(c) 
-    print(f"Coefficient c[0]: {c[0]}") 
-
-    d = a - b
-    print(f"Soustraction (a - b): {d}")
-    print(f"Coefficient d[0]: {d[0]}")
-
     p1 = Polynomial([1, 2, 4, 4, 3, 1, 6, 6, 4, 3] + [0]*246)
     p2 = Polynomial([3, 4, 8, 10, 27, 273, 12, 982, 12, 42, 9] + [0]*245)
     assert inverse_NTT(NTT(p1) * NTT(p2)) == p1 * p2
-    # print(f"Produit p1 * p2 = {p1 * p2}") # Affiche le produit
-
-    from conversion import round_up
-    print(round_up(2.5))

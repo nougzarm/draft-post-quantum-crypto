@@ -14,14 +14,14 @@ Decompress_d : Z_(2**d) -> Z_Q
 """
 def Compress(x: int, d: int):
     if d < 0 or d > 11:
-        raise ValueError(f"Mauvaise valeur de d")
+        raise ValueError(f"Unauthorized value for d")
     
     d_pow = 2**d
     return round_up((d_pow/Q)*x) % d_pow
 
 def Decompress(y: int, d: int):
     if d < 0 or d > 11:
-        raise ValueError(f"Mauvaise valeur de d")
+        raise ValueError(f"Unauthorized value for d")
     
     return round_up((Q / (2**d)) * y)
 
@@ -34,7 +34,7 @@ Output : B in B^r
 """
 def BitToBytes(b) -> bytes:
     if len(b) % 8 != 0:
-        raise ValueError(f"Le tableau de bits n'a pas une longueur multiple de 8")
+        raise ValueError(f"Bit array does not have length multiple of 8")
     
     l = len(b)
     B = [0] * (l // 8)
@@ -67,10 +67,10 @@ Output : B in B^(32*d)
 """
 def ByteEncode(F: list, d: int = CONST_d) -> bytes:
     if d > 12 or d < 0 :
-        raise ValueError(f"Mauvaise valeur de d")
+        raise ValueError(f"Unauthorized value for d")
 
     if len(F) != N:
-        raise ValueError(f"Mauvaise longueur")
+        raise ValueError(f"Unauthorized length for F")
     
     b = [0] * (N * d)
     for i in range(N):
@@ -90,10 +90,10 @@ Output : integer array F in Z_m^N, where m = 2^d if d < 12, and m = Q if d = 12
 """
 def ByteDecode(B: bytes, d=CONST_d):
     if d > 12 or d < 0 :
-        raise ValueError(f"Mauvaise valeur de d")
+        raise ValueError(f"Unauthorized value for d")
 
     if len(B) // 32 != d:
-        raise ValueError(f"Mauvaise longueur")
+        raise ValueError(f"Unauthorized length")
     
     if d == CONST_d:
         m = Q
@@ -107,6 +107,7 @@ def ByteDecode(B: bytes, d=CONST_d):
             F[i] = (F[i] + b[i*d + j] * (2**j)) % m
     return F
 
+# --- Example of use and test ---
 if __name__ == '__main__':
     assert Decompress(Compress(1933, 11), 11) == 1933
     assert Compress(Decompress(2001, 11), 11) == 2001
