@@ -51,10 +51,10 @@ class ML_KEM:
     Output : shared secret key K in B^32
     """
     def Decaps_internal(self, dk: bytes, c: bytes):
-        dk_pke = dk[:384 * k]
-        ek_pke = dk[384 * k:768 * k + 32]
-        h = dk[768 * k + 32:768 * k + 64]
-        z = dk[768 * k + 64:]
+        dk_pke = dk[:384 * self.pke.k]
+        ek_pke = dk[384 * self.pke.k:768 * self.pke.k + 32]
+        h = dk[768 * self.pke.k + 32:768 * self.pke.k + 64]
+        z = dk[768 * self.pke.k + 64:]
         m_prime = self.pke.Decrypt(dk_pke, c)
         K_prime, r_prime = G(m_prime + h)
         K_bar = J(z + c)
