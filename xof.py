@@ -41,7 +41,7 @@ def H(s: bytes) -> bytes:
 
 def J(s: bytes) -> bytes:
     shake = shake_256(s)
-    return shake.digest(8 * 32)
+    return shake.digest(32)
 
 """ 
 Correspond à la définition dans (4.5)

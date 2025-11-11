@@ -55,3 +55,19 @@ def KEM_Decaps_internal(dk: bytes, c: bytes, k: int, eta_1: int, eta_2: int, d_u
         K_prime = K_bar
     
     return K_prime
+
+# --- Exemple d'utilisation et tests ---
+if __name__ == '__main__':
+    k, eta_1, eta_2, d_u, d_v = 3, 2, 2, 10, 4
+    seed = b"Salut de la part de moi meme lee"
+
+    d = H(b"randomness d")
+    z = J(b"randomness z")
+
+    ek, dk = KEM_KeyGen_internal(d, z, k, eta_1)
+
+    seed = H(b"seed permettant l encapsulation")
+    K, c = KEM_Encaps_internal(ek, seed, k, eta_1, eta_2, d_u, d_v)
+
+    K_decaps = KEM_Decaps_internal(dk, c, k, eta_1, eta_2, d_u, d_v)
+    assert K_decaps == K

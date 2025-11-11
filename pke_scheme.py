@@ -163,7 +163,6 @@ if __name__ == '__main__':
 
     message = b"Ce message est tres confidentiel"
     ciphertext = PKE_Encrypt(ek, message, seed, k, eta_1, eta_2, d_u, d_v)
-    print(ciphertext.hex())
 
     mess_decrypt = PKE_Decrypt(dk, ciphertext, k, d_u, d_v)
     print(mess_decrypt)
