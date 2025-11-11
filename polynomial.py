@@ -196,7 +196,11 @@ def SamplePolyCBD(B: bytes, eta=3) -> Polynomial:
     return Polynomial(f)
 
 """ 
-Algorithm 9
+Algorithm 9 : NTT(f)
+Computes the NTT representation f_ntt of the giver polynomial f in R_Q
+
+Input : Polynomial f in R_Q (Z_Q^N)
+Output : PolynomialNTT f_ntt in T_Q (Z_Q^N)
 """
 def NTT(f: Polynomial) -> PolynomialNTT:
     C = f.coeffs.copy()
@@ -214,7 +218,11 @@ def NTT(f: Polynomial) -> PolynomialNTT:
     return PolynomialNTT(C)
 
 """ 
-Algorithm 10
+Algorithm 10 : NNT^-1(f_ntt)
+Computes the polynomial f in R_Q that corresponds to the given NTT representation f_ntt in T_Q
+
+Input : PolynomialNTT f_ntt in T_Q (Z_Q^N)
+Output : Polynomial f in R_Q (Z_Q^N)
 """
 def inverse_NTT(f_ntt: PolynomialNTT) -> Polynomial:
     C = f_ntt.coeffs.copy()

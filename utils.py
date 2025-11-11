@@ -10,8 +10,11 @@ def BitRev(i: int, L=7) -> int:
     return reversed_i
 
 """ 
-Algorithm 11
-This is the multiplication's core between two elements of the ring T_Q
+Algorithm 11 : MultiplyNTTs(f_ntt, g_ntt)
+Computes the product (in the ring T_Q) of two NTT representations.
+
+Input : Two arrays f_ntt and g_ntt in Z_Q^N
+Output : An array h_ntt in Z_Q^N
 """
 def MultiplyNTTs(f_ntt: list, g_ntt: list):
     if len(f_ntt) != N or len(g_ntt) != N:
@@ -27,9 +30,14 @@ def MultiplyNTTs(f_ntt: list, g_ntt: list):
     return h_ntt
 
 """ 
-Algorithm 12 
+Algorithm 12 : BaseCaseMultiply(a0, a1, b0, b1, gamma)
+Computes the product of two degree-one polynomials with respect to a quadratic modulus.
+
+Input : a0, a1, b0, b1 in Z_Q
+Input : gamma in Z_Q
+Output : c0, c1 in Z_Q
 """
-def BaseCaseMultiply(a0, a1, b0, b1, gamma):
+def BaseCaseMultiply(a0: int, a1: int, b0: int, b1: int, gamma: int):
     c0 = (a0*b0 + a1*b1*gamma) % Q
     c1 = (a0*b1 + a1*b0) % Q
     return [c0, c1]

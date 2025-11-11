@@ -8,6 +8,7 @@ def round_up(x):
     
 """
 Compression and decompression functions
+described on page 21 of the spec [FIPS 203]
 
 Compress_d : Z_Q -> Z_(2**d)
 Decompress_d : Z_(2**d) -> Z_Q
