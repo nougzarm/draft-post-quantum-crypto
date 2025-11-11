@@ -1,5 +1,5 @@
 from constants import CONST_d, N
-from xof import G, PRF
+from hash import G, PRF
 from polynomial import *
 from conversion import *
 

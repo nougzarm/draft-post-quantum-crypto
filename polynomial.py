@@ -1,5 +1,5 @@
 from constants import N, Q, ZETAS
-from xof import XOF
+from hash import XOF
 from conversion import *
 from utils import MultiplyNTTs
 

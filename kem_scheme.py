@@ -1,6 +1,6 @@
 import secrets
 from pke_scheme import *
-from xof import H, G, J
+from hash import H, G, J
 
 """ 
 Algorithm 16 : ML-KEM.KeyGen_internal(d, z)
