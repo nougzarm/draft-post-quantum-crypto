@@ -1,4 +1,4 @@
-from constants import CONST_d, N
+from constants import CONST_d
 from hash import G, PRF
 from polynomial import *
 from conversion import *
