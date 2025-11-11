@@ -2,100 +2,108 @@ import secrets
 from pke_scheme import *
 from hash import H, G, J
 
-""" 
-Algorithm 16 : ML-KEM.KeyGen_internal(d, z)
-Uses randomness to generate an encapsulation key and a corresponding decapsulation key.
+class ML_KEM:
+    """
+    Implémente le schéma ML-KEM (FIPS 203) en tant que classe
+    qui contient les paramètres du schéma.
+    """
+    def __init__(self, k: int, eta_1: int, eta_2: int, d_u: int, d_v: int):
+        self.pke = K_PKE(k, eta_1, eta_2, d_u, d_v)
 
-Input : randomness d in B^32
-Input : randomness z in B^32
-Output : encapsulation key ek in B^(384*k + 32)
-output : decapsulation key dk in B^(768*k + 96)
-"""
-def KEM_KeyGen_internal(d: bytes, z: bytes, k: int, eta_1: int):
-    if len(z) != 32:
-        raise ValueError(f"Mauvaise longueur de la seed z")
-    
-    ek_pke, dk_pke = PKE_KeyGen(d, k, eta_1)
-    dk = dk_pke + ek_pke + H(ek_pke) + z
+    """ 
+    Algorithm 16 : ML-KEM.KeyGen_internal(d, z)
+    Uses randomness to generate an encapsulation key and a corresponding decapsulation key.
 
-    return ek_pke, dk
+    Input : randomness d in B^32
+    Input : randomness z in B^32
+    Output : encapsulation key ek in B^(384*k + 32)
+    output : decapsulation key dk in B^(768*k + 96)
+    """
+    def KeyGen_internal(self, d: bytes, z: bytes):
+        if len(z) != 32:
+            raise ValueError(f"Mauvaise longueur de la seed z")
+        
+        ek_pke, dk_pke = self.pke.KeyGen(d)
+        dk = dk_pke + ek_pke + H(ek_pke) + z
 
-""" 
-Algorithm 17 : ML-KEM.Encaps_internal(ek, m)
-Uses the encapsulation key and randomness to generate a key and an associated ciphertext.
+        return ek_pke, dk
 
-Input : encapsulation key ek in B^(384*k + 32)
-Input : randomness m in B^32
-Output : shared secret key K in B^32
-Output : ciphertext c in B^(32 * (d_u*k + d_v))
-"""
-def KEM_Encaps_internal(ek: bytes, m: bytes, k: int, eta_1: int, eta_2: int, d_u: int, d_v: int):
-    K, r = G(m + H(ek))
-    c = PKE_Encrypt(ek, m, r, k, eta_1, eta_2, d_u, d_v)
-    return K, c
+    """ 
+    Algorithm 17 : ML-KEM.Encaps_internal(ek, m)
+    Uses the encapsulation key and randomness to generate a key and an associated ciphertext.
 
-""" 
-Algorithm 18 : ML-KEM.Decaps_internal(dk, c)
-Uses the decapsulation key to produce a shared secret key from a ciphertext.
+    Input : encapsulation key ek in B^(384*k + 32)
+    Input : randomness m in B^32
+    Output : shared secret key K in B^32
+    Output : ciphertext c in B^(32 * (d_u*k + d_v))
+    """
+    def Encaps_internal(self, ek: bytes, m: bytes):
+        K, r = G(m + H(ek))
+        c = self.pke.Encrypt(ek, m, r)
+        return K, c
 
-Input : decapsulation key dk in B^(768*k + 96)
-Input : ciphertext c in B^(32 * (d_u*k + d_v))
-Output : shared secret key K in B^32
-"""
-def KEM_Decaps_internal(dk: bytes, c: bytes, k: int, eta_1: int, eta_2: int, d_u: int, d_v: int):
-    dk_pke = dk[:384 * k]
-    ek_pke = dk[384 * k:768 * k + 32]
-    h = dk[768 * k + 32:768 * k + 64]
-    z = dk[768 * k + 64:]
-    m_prime = PKE_Decrypt(dk_pke, c, k, d_u, d_v)
-    K_prime, r_prime = G(m_prime + h)
-    K_bar = J(z + c)
-    c_prime = PKE_Encrypt(ek_pke, m_prime, r_prime, k, eta_1, eta_2, d_u, d_v)
+    """ 
+    Algorithm 18 : ML-KEM.Decaps_internal(dk, c)
+    Uses the decapsulation key to produce a shared secret key from a ciphertext.
 
-    if c != c_prime:
-        K_prime = K_bar
-    
-    return K_prime
+    Input : decapsulation key dk in B^(768*k + 96)
+    Input : ciphertext c in B^(32 * (d_u*k + d_v))
+    Output : shared secret key K in B^32
+    """
+    def Decaps_internal(self, dk: bytes, c: bytes):
+        dk_pke = dk[:384 * k]
+        ek_pke = dk[384 * k:768 * k + 32]
+        h = dk[768 * k + 32:768 * k + 64]
+        z = dk[768 * k + 64:]
+        m_prime = self.pke.Decrypt(dk_pke, c)
+        K_prime, r_prime = G(m_prime + h)
+        K_bar = J(z + c)
+        c_prime = self.pke.Encrypt(ek_pke, m_prime, r_prime)
 
-""" 
-Algorithm 19 : ML-KEM.KeyGen()
-Generates an encapsulation key and a corresponding decapsulation key.
+        if c != c_prime:
+            K_prime = K_bar
+        
+        return K_prime
 
-Output : encapsulation key ek in B^(384*k + 32)
-output : decapsulation key dk in B^(768*k + 96)
-"""
-def KEM_KeyGen():
-    seed_d = secrets.token_bytes(32)
-    seed_z = secrets.token_bytes(32)
+    """ 
+    Algorithm 19 : ML-KEM.KeyGen()
+    Generates an encapsulation key and a corresponding decapsulation key.
 
-    ek, dk = KEM_KeyGen_internal(seed_d, seed_z, k, eta_1)
+    Output : encapsulation key ek in B^(384*k + 32)
+    output : decapsulation key dk in B^(768*k + 96)
+    """
+    def KeyGen(self):
+        seed_d = secrets.token_bytes(32)
+        seed_z = secrets.token_bytes(32)
 
-    return ek, dk
+        ek, dk = self.KeyGen_internal(seed_d, seed_z)
 
-""" 
-Algorithm 20 : ML-KEM.Encaps(ek)
-Uses the encapsulation key to generate a shared secret key and an associated ciphertext
+        return ek, dk
 
-Input : encapsulation key ek in B^(384*k + 32)
-Output : shared secret key K in B^32
-Output : ciphertext c in B^(32 * (d_u*k + d_v))
-"""
-def KEM_Encaps(ek: bytes, k: int, eta_1: int, eta_2: int, d_u: int, d_v: int):
-    m = secrets.token_bytes(32)
-    K, c = KEM_Encaps_internal(ek, m, k, eta_1, eta_2, d_u, d_v)
-    return K, c
+    """ 
+    Algorithm 20 : ML-KEM.Encaps(ek)
+    Uses the encapsulation key to generate a shared secret key and an associated ciphertext
 
-""" 
-Algorithm 21 : ML-KEM.Decaps(dk, c)
-Uses the decapsulation key to produce a shared secret key from a ciphertext.
+    Input : encapsulation key ek in B^(384*k + 32)
+    Output : shared secret key K in B^32
+    Output : ciphertext c in B^(32 * (d_u*k + d_v))
+    """
+    def Encaps(self, ek: bytes):
+        m = secrets.token_bytes(32)
+        K, c = self.Encaps_internal(ek, m)
+        return K, c
 
-Input : decapsulation key dk in B^(768*k + 96)
-Input : ciphertext c in B^(32 * (d_u*k + d_v))
-Output : shared secret key K in B^32
-"""
-def KEM_Decaps(dk: bytes, c: bytes, k: int, eta_1: int, eta_2: int, d_u: int, d_v: int):
-    K_prime = KEM_Decaps_internal(dk, c, k, eta_1, eta_2, d_u, d_v)
-    return K_prime
+    """ 
+    Algorithm 21 : ML-KEM.Decaps(dk, c)
+    Uses the decapsulation key to produce a shared secret key from a ciphertext.
+
+    Input : decapsulation key dk in B^(768*k + 96)
+    Input : ciphertext c in B^(32 * (d_u*k + d_v))
+    Output : shared secret key K in B^32
+    """
+    def Decaps(self, dk: bytes, c: bytes):
+        K_prime = self.Decaps_internal(dk, c)
+        return K_prime
 
 # --- Exemple d'utilisation et tests ---
 if __name__ == '__main__':
@@ -107,17 +115,19 @@ if __name__ == '__main__':
     d = H(b"randomness d")
     z = J(b"randomness z")
 
-    ek, dk = KEM_KeyGen_internal(d, z, k, eta_1)
+    kem_scheme = ML_KEM(k, eta_1, eta_2, d_u, d_v)
+
+    ek, dk = kem_scheme.KeyGen_internal(d, z)
 
     seed = H(b"seed permettant l encapsulation")
-    K, c = KEM_Encaps_internal(ek, seed, k, eta_1, eta_2, d_u, d_v)
+    K, c = kem_scheme.Encaps_internal(ek, seed)
 
-    K_decaps = KEM_Decaps_internal(dk, c, k, eta_1, eta_2, d_u, d_v)
+    K_decaps = kem_scheme.Decaps_internal(dk, c)
     assert K_decaps == K
 
     # --- Test des algorithmes principaux
-    ek, dk = KEM_KeyGen()
+    ek, dk = kem_scheme.KeyGen()
 
-    K, c = KEM_Encaps(ek, k, eta_1, eta_2, d_u, d_v)
-    K_decaps = KEM_Decaps(dk, c, k, eta_1, eta_2, d_u, d_v)
+    K, c = kem_scheme.Encaps(ek)
+    K_decaps = kem_scheme.Decaps(dk, c)
     assert K_decaps == K
