@@ -96,10 +96,8 @@ def ByteDecode(B: bytes, d=CONST_d):
     if len(B) // 32 != d:
         raise ValueError(f"Unauthorized length")
     
-    if d == CONST_d:
-        m = Q
-    else:
-        m = 2**d
+    if d == CONST_d: m = Q
+    else: m = 2**d
 
     F = [0] * N
     b = BytesToBits(B)

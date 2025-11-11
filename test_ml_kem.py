@@ -30,11 +30,11 @@ class TestMLKEM(unittest.TestCase):
         print(f"  Encapsulated key (K) : {K_encaps.hex()}")
         print(f"  Ciphertext generated (c) : {len(c)} bytes")
 
-        # 3. Décapsulation
+        # 3. Decapsulation
         K_decaps = kem_instance.Decaps(dk, c)
         print(f"  Decapsulated key (K') : {K_decaps.hex()}")
 
-        # 4. Vérification
+        # 4. Verification
         self.assertEqual(K_encaps, K_decaps, f"TEST {test_name} FAILED: Keys do not match !")
         print(f"  ✅ SUCCESS : {test_name}")
 
