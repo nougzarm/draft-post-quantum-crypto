@@ -1,7 +1,7 @@
-# Implémentation Pédagogique de Kyber (FIPS 203 / ML-KEM) en Python
+# Educational Implementation of Kyber (FIPS 203 / ML-KEM) in Python
 
-Ce projet est une implémentation en Python pur de **Kyber**, l'algorithme de mécanisme d'encapsulation de clé (KEM) basé sur les réseaux euclidiens, sélectionné par le NIST pour la standardisation post-quantique (maintenant publié sous le nom de **FIPS 203 : ML-KEM**).
+This project is a pure Python implementation of **Kyber**, the lattice-based Key Encapsulation Mechanism (KEM) algorithm selected by NIST for post-quantum standardization (now published as **FIPS 203**: **ML-KEM**).
 
-## ⚠️ Avertissement de Sécurité Fondamental
+## ⚠️ Fundamental Security Warning
 
-Cette implémentation est développée **UNIQUEMENT à des fins éducatives et de recherche**.
+This implementation is developed **FOR EDUCATIONAL AND RESEARCH PURPOSES ONLY**.
