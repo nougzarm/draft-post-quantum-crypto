@@ -71,12 +71,10 @@ class Polynomial:
         if not isinstance(other, Polynomial):
             return NotImplemented
         
-        result = True
+        diff = 0
         for i in range(N):
-            if self.coeffs[i] != other.coeffs[i]:
-                result = False
-
-        return result
+            diff |= (self.coeffs[i] - other.coeffs[i]) % Q
+        return diff == 0
 
     def __repr__(self):
         terms = []
