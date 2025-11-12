@@ -1,10 +1,7 @@
 from constants import CONST_d, Q, N
 
 def round_up(x):
-    if x % 1 == 1/2:
-        return round(x) + 1
-    else:
-        return round(x)
+    return int(x + 0.5)
     
 """
 Compression and decompression functions
