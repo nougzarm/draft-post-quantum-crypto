@@ -30,7 +30,7 @@ Converts a bit array (of a length that is a multiple of eight) into an array of 
 Input : b in {0, 1}^(8*r)
 Output : B in B^r
 """
-def BitToBytes(b) -> bytes:
+def BitsToBytes(b) -> bytes:
     if len(b) % 8 != 0:
         raise ValueError(f"Bit array does not have length multiple of 8")
     
@@ -76,7 +76,7 @@ def ByteEncode(F: list, d: int = CONST_d) -> bytes:
         for j in range(d):
             b[i*d + j] = a % 2
             a = (a - b[i*d + j]) // 2
-    B = BitToBytes(b)
+    B = BitsToBytes(b)
     return B
 
 """ 
@@ -109,7 +109,7 @@ if __name__ == '__main__':
     assert Compress(Decompress(2001, 11), 11) == 2001
 
     B = b"salut tous le monde. Comment allez vous"
-    assert BitToBytes(BytesToBits(B)) == B
+    assert BitsToBytes(BytesToBits(B)) == B
 
     b = [1, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0,
         0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 
@@ -121,7 +121,7 @@ if __name__ == '__main__':
         0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 
         1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 
         1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0]
-    assert BytesToBits(BitToBytes(b)) == b
+    assert BytesToBits(BitsToBytes(b)) == b
 
     from polynomial import SampleNTT
 

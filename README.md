@@ -22,7 +22,7 @@ This project provides a complete, from-scratch implementation of the ML-KEM stan
 The code is structured modularly to mirror the FIPS 203 specification:
 - `constants.py`: Defines core constants like `N`, `Q`, and the pre-computed `ZETAS` twiddle factors.
 - `hash.py`: Wrappers for all cryptographic hash functions (SHAKE-128, SHAKE-256, SHA3-256, SHA3-512).
-- `conversion.py`: Handles all serialization (`ByteEncode`/`ByteDecode`), bit-packing (`BitToBytes`/`BytesToBits`), and `Compress`/`Decompress` functions.
+- `conversion.py`: Handles all serialization (`ByteEncode`/`ByteDecode`), bit-packing (`BitsToBytes`/`BytesToBits`), and `Compress`/`Decompress` functions.
 - `polynomial.py`: The core of the project. Implements the `Polynomial` and `PolynomialNTT` classes, all polynomial arithmetic, `NTT`/`inverse_NTT`, and sampling functions (`SampleNTT`, `SamplePolyCBD`).
 - `utils.py`: Contains helper functions for the NTT, such as `BaseCaseMultiply` (Algorithm 12).
 - `pke_scheme.py`: Implements the `K_PKE` class, representing the IND-CPA secure public-key encryption scheme (Algorithms 13-15).
