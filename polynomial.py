@@ -243,7 +243,7 @@ def inverse_NTT(f_ntt: PolynomialNTT) -> Polynomial:
 
 # --- Example of use and test ---
 if __name__ == '__main__':
-    a = Polynomial([1, 0, 2, 3] + [0] * (N - 4))
+    a = Polynomial([1, 0, 2, 3, 18, 32, 72, 21, 23, 1, 0, 9, 287, 23] + [0] * (N - 14))
     assert inverse_NTT(NTT(a)) == a
     print(a)
 
