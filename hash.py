@@ -67,7 +67,3 @@ if __name__ == '__main__':
 
     (g_a, g_b) = G(b"qjdhfyritoprlkdjfkrjfbdnzyhdjrtr")
     assert (g_a.hex(), g_b.hex()) == ("132f6750e8aafeee8cff75bafdf1cae43307ac23878d5403990b33664bdec268", "73fe4185b09c291388961a4420b40a44705538502490b755b27e88d723f85192")
-
-
-
-    
