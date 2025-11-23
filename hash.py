@@ -56,8 +56,5 @@ def G(c: bytes):
 
 # --- Example of use and test ---
 if __name__ == '__main__':
-    prf_result = PRF(3, b"qjdhfyritoprlkdjfkrjfbdnzyhdjrtr", b"a")
-    shake = shake_256()
-    shake.update(b"qjdhfyritoprlkdjfkrjfbdnzyhdjrtr" + b"a")
-    manual_res = shake.digest(8*64*3)
-    assert prf_result == manual_res
+    prf_result = PRF(2, b"qjdhfyritoprlkdjfkrjfbdnzyhdjrtr", b"a")
+    assert prf_result.hex() == "eedb2631fdc3c6748dc567534e90eb016d087e6c088f3de6f815e854e6a78daf4181a01d80f26c1f9d2816f95e2427b8e261cc45dc2a98f96a81db2235b0f4d02c4a6b2ad94e3444dc921fc0ed378bca86a9eec7179c45be3f6b9809a4770012e7cd143872e45b7bf8f34e6819102d5a55f32a1f9d105a8b3dfe25af75d76f93"

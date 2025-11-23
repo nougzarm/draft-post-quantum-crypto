@@ -126,5 +126,6 @@ if __name__ == '__main__':
     from polynomial import SampleNTT
 
     F = SampleNTT(b"Salut de la part de moi meme le ka").coeffs
+    print(F)
     F_rev = ByteDecode(ByteEncode(F))
     assert F == F_rev
