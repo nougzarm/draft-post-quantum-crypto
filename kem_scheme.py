@@ -17,7 +17,7 @@ class ML_KEM:
     Input : randomness d in B^32
     Input : randomness z in B^32
     Output : encapsulation key ek in B^(384*k + 32)
-    output : decapsulation key dk in B^(768*k + 96)
+    Output : decapsulation key dk in B^(768*k + 96)
     """
     def KeyGen_internal(self, d: bytes, z: bytes):
         if len(z) != 32:
