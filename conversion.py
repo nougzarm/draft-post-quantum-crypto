@@ -105,7 +105,9 @@ def ByteDecode(B: bytes, d=CONST_d):
 
 # --- Example of use and test ---
 if __name__ == '__main__':
+    assert Compress(1933, 11) == 1189
     assert Decompress(Compress(1933, 11), 11) == 1933
+    assert Decompress(2001, 11) == 3253
     assert Compress(Decompress(2001, 11), 11) == 2001
 
     B = b"salut tous le monde. Comment allez vous"
@@ -126,6 +128,5 @@ if __name__ == '__main__':
     from polynomial import SampleNTT
 
     F = SampleNTT(b"Salut de la part de moi meme le ka").coeffs
-    print(F)
     F_rev = ByteDecode(ByteEncode(F))
     assert F == F_rev
